@@ -49,6 +49,12 @@ import Modal from "../../Modal";
 import { SETTINGS } from "../../settings/Settings";
 import ToastStore from "../../stores/ToastStore";
 import { ModuleApi } from "../../modules/Api";
+import { LeftResizablePanelView } from "@element-hq/web-shared-components";
+
+vi.mock("@element-hq/web-shared-components", async (importOriginal) => {
+    const components = await importOriginal<typeof import("@element-hq/web-shared-components")>();
+    return { ...components, LeftResizablePanelView: vi.fn(components.LeftResizablePanelView) };
+});
 
 describe("<LoggedInView />", () => {
     const userId = "@alice:domain.org";
@@ -418,6 +424,16 @@ describe("<LoggedInView />", () => {
                 // not called
                 expect(mockClient.setPushRuleActions).not.toHaveBeenCalled();
             });
+        });
+    });
+
+    it("should use the upstream room list resize limits", () => {
+        getComponent({ page_type: "room" });
+
+        expect(vi.mocked(LeftResizablePanelView).mock.calls[0][0]).toMatchObject({
+            minSize: "200px",
+            maxSize: "370px",
+            defaultSize: "370px",
         });
     });
 

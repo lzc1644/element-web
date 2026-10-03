@@ -58,7 +58,8 @@ export class ElementAppPage {
     public async openCreateRoomDialog(roomKindname: "New room" | "New video room" = "New room"): Promise<Locator> {
         await this.page
             .getByRole("navigation", { name: "Room list" })
-            .getByRole("button", { name: "New conversation" })
+            .getByLabel("Room options")
+            .getByRole("button", { name: "New" })
             .click();
         await this.page.getByRole("menuitem", { name: roomKindname }).click();
         return this.page.locator(".mx_CreateRoomDialog");
@@ -195,14 +196,17 @@ export class ElementAppPage {
      * upload dialog.
      * @param location Should the main room input or the thread view input be used.
      */
-    public setComposerInputFiles(
+    public async setComposerInputFiles(
         location: "room" | "thread",
         ...params: Parameters<Locator["setInputFiles"]>
-    ): ReturnType<Locator["setInputFiles"]> {
-        const input = this.page
-            .locator(location === "room" ? ".mx_RoomView_body" : ".mx_RightPanel")
-            .getByTestId("room-upload-context-input");
-        return input.setInputFiles(...params);
+    ): Promise<void> {
+        // The upload input belongs to the context provider, not necessarily the composer's container.
+        const fileChooserPromise = this.page.waitForEvent("filechooser");
+        await this.getComposer(location === "thread")
+            .getByRole("button", { name: "Attachment", exact: true })
+            .click();
+        const fileChooser = await fileChooserPromise;
+        await fileChooser.setFiles(...params);
     }
 
     /**

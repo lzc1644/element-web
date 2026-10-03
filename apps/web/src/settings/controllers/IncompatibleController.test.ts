@@ -12,12 +12,6 @@ import IncompatibleController from "./IncompatibleController";
 import { SettingLevel } from "../SettingLevel";
 import SettingsStore from "../SettingsStore";
 
-declare module "../Settings.tsx" {
-    interface Settings {
-        test_setting: IBaseSetting<string>;
-    }
-}
-
 describe("IncompatibleController", () => {
     const settingsGetValueSpy = vi.spyOn(SettingsStore, "getValue");
     beforeEach(() => {

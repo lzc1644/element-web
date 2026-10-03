@@ -12,8 +12,6 @@
     /* We set the separator container to relative so that the child container (activeSeparatorContainer)
     can be absolutely positioned */
     position: relative;
-    z-index: 1002;
-    isolation: isolate;
 
     display: flex;
     justify-content: center;

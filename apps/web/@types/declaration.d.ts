@@ -10,3 +10,5 @@ declare module "*.wasm" {
     const src: string;
     export default src;
 }
+// Plain stylesheets are imported for their side effect (webpack extracts them), so they export nothing useful.
+declare module "*.css";
