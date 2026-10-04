@@ -13,7 +13,7 @@ exports[`FilePanel > renders empty state 1`] = `
       >
         <p
           aria-level="1"
-          class="_typography_6v6n8_153 _font-body-md-medium_6v6n8_60 mx_BaseCard_header_title_heading"
+          class="_typography _font-body-md-medium mx_BaseCard_header_title_heading"
           role="heading"
         >
           Files
@@ -21,7 +21,7 @@ exports[`FilePanel > renders empty state 1`] = `
       </div>
       <button
         aria-labelledby="react-use-id-1"
-        class="_icon-button_1215g_8"
+        class="_icon-button"
         data-kind="secondary"
         data-testid="base-card-close-button"
         role="button"
@@ -29,7 +29,7 @@ exports[`FilePanel > renders empty state 1`] = `
         tabindex="0"
       >
         <div
-          class="_indicator-icon_147l5_17"
+          class="_indicator-icon"
           style="--cpd-icon-button-size: 100%;"
         >
           <svg
@@ -50,17 +50,17 @@ exports[`FilePanel > renders empty state 1`] = `
       class="mx_FilePanel_controls"
     >
       <div
-        class="_root_hutds_8"
+        class="_root"
       >
         <form
-          class="_root_1o4d9_17"
+          class="_root"
         >
           <label
-            class="_label_1o4d9_60 _field_1o4d9_27 _search_1lktl_8"
+            class="_label _field _search"
             for="react-use-id-2"
           >
             <svg
-              class="_icon_1lktl_37"
+              class="_icon"
               fill="currentColor"
               height="20"
               viewBox="0 0 24 24"
@@ -72,7 +72,7 @@ exports[`FilePanel > renders empty state 1`] = `
               />
             </svg>
             <input
-              class="_input_1lktl_52"
+              class="_input"
               id="react-use-id-2"
               name="file_panel_search"
               placeholder="Search by file name…"
@@ -82,7 +82,7 @@ exports[`FilePanel > renders empty state 1`] = `
           </label>
         </form>
         <div
-          class="_footer_hutds_14"
+          class="_footer"
         >
           <span
             aria-live="polite"
@@ -197,7 +197,7 @@ exports[`FilePanel > renders empty state 1`] = `
               class="mx_FilePanel_empty"
             >
               <div
-                class="_flex_4dswl_9 mx_EmptyState"
+                class="_flex mx_EmptyState"
                 style="--mx-flex-display: flex; --mx-flex-direction: column; --mx-flex-align: center; --mx-flex-justify: center; --mx-flex-gap: var(--cpd-space-4x); --mx-flex-wrap: nowrap;"
               >
                 <svg
@@ -212,12 +212,12 @@ exports[`FilePanel > renders empty state 1`] = `
                   />
                 </svg>
                 <p
-                  class="_typography_6v6n8_153 _font-body-lg-semibold_6v6n8_74"
+                  class="_typography _font-body-lg-semibold"
                 >
                   No files visible in this room
                 </p>
                 <p
-                  class="_typography_6v6n8_153 _font-body-md-regular_6v6n8_50"
+                  class="_typography _font-body-md-regular"
                 >
                   Attach files from chat or just drag and drop them anywhere in a room.
                 </p>

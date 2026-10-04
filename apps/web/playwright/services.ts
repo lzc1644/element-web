@@ -129,7 +129,6 @@ export const test = commonBase.extend<{}, Services & WorkerOptions>({
             permissions: projectUse.permissions,
             proxy: projectUse.proxy,
             reducedMotion: projectUse.reducedMotion,
-            screen: projectUse.screen,
             serviceWorkers: projectUse.serviceWorkers,
             storageState: projectUse.storageState,
             timezoneId: projectUse.timezoneId,

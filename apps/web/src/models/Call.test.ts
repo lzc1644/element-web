@@ -38,6 +38,7 @@ import { WidgetMessagingStore } from "../stores/widgets/WidgetMessagingStore";
 import ActiveWidgetStore, { ActiveWidgetStoreEvent } from "../stores/ActiveWidgetStore";
 import { ElementWidgetActions } from "../stores/widgets/ElementWidgetActions";
 import SettingsStore from "../settings/SettingsStore";
+import { type ElementCallHandle } from "@element-hq/element-call-component/api";
 import { Anonymity, PosthogAnalytics } from "../PosthogAnalytics";
 import { type SettingKey } from "../settings/Settings.tsx";
 import SdkConfig from "../SdkConfig.ts";
@@ -537,13 +538,23 @@ describe("ElementCall", () => {
             SettingsStore.getValue = originalGetValue;
         });
 
-        it("uses the configured self-hosted Element Call room route when no developer override is set", () => {
-            SdkConfig.put({ element_call: { url: "https://self-hosted.example/call" } });
-            ElementCall.create(room);
-            const call = ElementCall.get(room);
-            expect(new URL(call!.widget.url).pathname).toBe("/call/room");
-            expect(new URL(call!.widget.url).origin).toBe("https://self-hosted.example");
-        });
+        it.each(["https://self-hosted.example/call", "https://self-hosted.example/call/"])(
+            "uses the configured self-hosted room route and upstream call options for %s",
+            (url) => {
+                SdkConfig.put({ element_call: { url } });
+                ElementCall.create(room);
+                const call = ElementCall.get(room);
+                const widgetUrl = new URL(call!.widget.url);
+                expect(widgetUrl.pathname).toBe("/call/room");
+                expect(widgetUrl.origin).toBe("https://self-hosted.example");
+
+                const params = new URLSearchParams(widgetUrl.hash.slice(2));
+                expect(params.get("intent")).toBe(ElementCallIntent.StartCall);
+                expect(params.get("background")).toBe("solid");
+                expect(params.get("fontScale")).toBeTruthy();
+                expect(params.get("lang")).toBeTruthy();
+            },
+        );
 
         it("uses the bundled Element Call directory when no external URL is configured", () => {
             ElementCall.create(room);
@@ -797,7 +808,7 @@ describe("ElementCall", () => {
         });
 
         it("requests correct intent when answering DMs", async () => {
-            roomSession.getOldestMembership.mockReturnValue({} as CallMembership);
+            roomSession.memberships = [{} as CallMembership]; // Remote party is already there
             getUserIdForRoomIdSpy.mockImplementation((roomId: string) =>
                 room.roomId === roomId ? "any-user" : undefined,
             );
@@ -810,7 +821,6 @@ describe("ElementCall", () => {
         });
 
         it("requests correct intent when creating a non-DM call", async () => {
-            roomSession.getOldestMembership.mockReturnValue(undefined);
             ElementCall.create(room);
             const call = Call.get(room);
             if (!(call instanceof ElementCall)) throw new Error("Failed to create call");
@@ -820,7 +830,7 @@ describe("ElementCall", () => {
         });
 
         it("requests correct intent when joining a non-DM call", async () => {
-            roomSession.getOldestMembership.mockReturnValue({} as CallMembership);
+            roomSession.memberships = [{} as CallMembership]; // Remote party is already there
             ElementCall.create(room);
             const call = Call.get(room);
             if (!(call instanceof ElementCall)) throw new Error("Failed to create call");
@@ -927,6 +937,32 @@ describe("ElementCall", () => {
             widgetApi.emit(`action:${ElementWidgetActions.HangupCall}`, new CustomEvent("widgetapirequest", {}));
             widgetApi.emit(`action:${ElementWidgetActions.Close}`, new CustomEvent("widgetapirequest", {}));
             await waitFor(() => expect(call.connectionState).toBe(ConnectionState.Disconnected), { interval: 5 });
+        });
+
+        it("stops presenting the call when the widget closes it", async () => {
+            // A voice call in PiP: presented, but no CallView to un-present it
+            await connect(call, widgetApi);
+            call.presented = true;
+            const onDestroy = vi.fn();
+            call.on(CallEvent.Destroy, onDestroy);
+
+            widgetApi.emit(`action:${ElementWidgetActions.HangupCall}`, new CustomEvent("widgetapirequest", {}));
+            widgetApi.emit(`action:${ElementWidgetActions.Close}`, new CustomEvent("widgetapirequest", {}));
+            await waitFor(() => expect(call.presented).toBe(false), { interval: 5 });
+            expect(onDestroy).toHaveBeenCalledTimes(1);
+        });
+
+        it("stops presenting the call when its widget's messaging stops", async () => {
+            // The widget drops always_on_screen before it sends close, which
+            // ends its messaging first: the close action never arrives
+            await connect(call, widgetApi);
+            call.presented = true;
+            const onDestroy = vi.fn();
+            call.on(CallEvent.Destroy, onDestroy);
+
+            WidgetMessagingStore.instance.stopMessaging(widget, room.roomId);
+            await waitFor(() => expect(call.presented).toBe(false), { interval: 5 });
+            expect(onDestroy).toHaveBeenCalledTimes(1);
         });
 
         it("disconnects", async () => {
@@ -1121,6 +1157,170 @@ describe("ElementCall", () => {
             const sendEventSpy = vi.spyOn(room.client, "sendEvent");
             ElementCall.create(room);
             expect(sendEventSpy).not.toHaveBeenCalled();
+        });
+    });
+});
+
+describe("ElementCall with the React component embedding", () => {
+    let client: ReturnType<typeof setUpClientRoomAndStores>["client"];
+    let room: Room;
+    let call: ElementCall;
+
+    beforeEach(() => {
+        enabledSettings.add("feature_element_call_react");
+        ({ client, room } = setUpClientRoomAndStores());
+        ElementCall.create(room);
+        const maybeCall = Call.get(room);
+        if (!(maybeCall instanceof ElementCall)) throw new Error("Failed to create call");
+        call = maybeCall;
+    });
+
+    afterEach(() => {
+        call.destroy();
+        enabledSettings.delete("feature_element_call_react");
+        cleanUpClientRoomAndStores(client, room);
+        vi.useRealTimers();
+    });
+
+    it("starts once the component reports ready, without widget messaging", async () => {
+        const started = call.start({ skipLobby: true });
+        call.markReady();
+        await expect(started).resolves.toBeNull();
+        expect(call.widgetGenerationParameters).toEqual({ skipLobby: true });
+    });
+
+    it("times out if the component never reports ready", async () => {
+        vi.useFakeTimers();
+        const started = call.start({});
+        await Promise.all([
+            expect(started).rejects.toThrow("not ready; timed out"),
+            vi.advanceTimersByTimeAsync(16000),
+        ]);
+    });
+
+    it("tracks the connection state through the control plane", () => {
+        const onClose = vi.fn();
+        call.on(CallEvent.Close, onClose);
+
+        call.handleJoined();
+        expect(call.connectionState).toBe(ConnectionState.Connected);
+        call.handleHangup();
+        expect(call.connectionState).toBe(ConnectionState.Disconnected);
+        expect(onClose).not.toHaveBeenCalled();
+
+        call.handleJoined();
+        call.handleClose();
+        expect(call.connectionState).toBe(ConnectionState.Disconnected);
+        expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    it("waits for a fresh component after closing", async () => {
+        call.markReady();
+        await call.start({});
+        call.handleClose();
+
+        vi.useFakeTimers();
+        const restarted = call.start({});
+        await Promise.all([
+            expect(restarted).rejects.toThrow("not ready; timed out"),
+            vi.advanceTimersByTimeAsync(16000),
+        ]);
+    });
+
+    it("disconnects by asking the component to hang up and waiting for its reply", async () => {
+        call.handleJoined();
+        const hangUp = vi.fn(async () => {
+            call.handleHangup(); // as the component would, before acknowledging
+        });
+        call.setComponentHandle({ hangUp } as unknown as ElementCallHandle);
+        const onClose = vi.fn();
+        call.on(CallEvent.Close, onClose);
+
+        await call.disconnect();
+        expect(hangUp).toHaveBeenCalledTimes(1);
+        expect(call.connectionState).toBe(ConnectionState.Disconnected);
+        expect(onClose).toHaveBeenCalled();
+    });
+
+    it("fails to disconnect when no component is listening", async () => {
+        call.handleJoined();
+        await expect(call.disconnect()).rejects.toThrow("no Element Call component is mounted");
+    });
+
+    it("fails to disconnect when the component cannot hang up", async () => {
+        call.handleJoined();
+        call.setComponentHandle({
+            hangUp: async () => {
+                throw new Error("Nothing in Element Call can hang up right now");
+            },
+        } as unknown as ElementCallHandle);
+        await expect(call.disconnect()).rejects.toThrow("Nothing in Element Call can hang up right now");
+    });
+
+    describe("getCallOptions", () => {
+        it("derives the intent and Element Web's overrides for a group call", () => {
+            call.widgetGenerationParameters = { skipLobby: true };
+            const { intent, config } = call.getCallOptions();
+            expect(intent).toBe(ElementCallIntent.StartCall);
+            expect(config).toMatchObject({
+                skipLobby: true,
+                background: "solid",
+                perParticipantE2EE: false,
+            });
+            expect(config.returnToLobby).toBeUndefined();
+        });
+
+        it("decides the component's options once per call, until the call is closed", () => {
+            call.widgetGenerationParameters = { skipLobby: true };
+            const options = call.componentOptions;
+            expect(options.config.skipLobby).toBe(true);
+
+            // What the options are computed from may change under a running call; the component must not see it
+            call.widgetGenerationParameters = { skipLobby: false };
+            expect(call.componentOptions).toBe(options);
+
+            call.close();
+            expect(call.componentOptions).not.toBe(options);
+            expect(call.componentOptions.config.skipLobby).toBe(false);
+        });
+
+        it("uses the voice intent and leaves the lobby decision to Element Call by default", () => {
+            call.widgetGenerationParameters = { voiceOnly: true };
+            const { intent, config } = call.getCallOptions();
+            expect(intent).toBe(ElementCallIntent.StartCallVoice);
+            expect(config.skipLobby).toBeUndefined();
+        });
+
+        it("always returns to the lobby and never skips it in video rooms", () => {
+            vi.spyOn(room, "isElementVideoRoom").mockReturnValue(true);
+            call.widgetGenerationParameters = { skipLobby: true };
+            const { intent, config } = call.getCallOptions();
+            expect(intent).toBe(ElementCallIntent.JoinExisting);
+            expect(config).toMatchObject({ returnToLobby: true, skipLobby: false });
+        });
+
+        it("detects DMs and voice calls like the widget URL does", () => {
+            vi.spyOn(DMRoomMap.shared(), "getUserIdForRoomId").mockReturnValue("@bob:example.org");
+            call.widgetGenerationParameters = { voiceOnly: true };
+            expect(call.getCallOptions().intent).toBe(ElementCallIntent.StartCallDMVoice);
+            call.widgetGenerationParameters = {};
+            expect(call.getCallOptions().intent).toBe(ElementCallIntent.StartCallDM);
+        });
+    });
+
+    describe("getConfigOptions", () => {
+        it("passes the first LiveKit transport Element Web discovered as the configured service URL", () => {
+            const options = ElementCall.getConfigOptions([
+                { type: "something_else", url: "https://ignored.example.org" },
+                { type: "livekit", livekit_service_url: "https://livekit-jwt.example.org" },
+                { type: "livekit", livekit_service_url: "https://second.example.org" },
+            ]);
+            expect(options.livekit).toEqual({ livekit_service_url: "https://livekit-jwt.example.org" });
+        });
+
+        it("leaves the transport to the component when none is known", () => {
+            expect(ElementCall.getConfigOptions([]).livekit).toBeUndefined();
+            expect(ElementCall.getConfigOptions().livekit).toBeUndefined();
         });
     });
 });

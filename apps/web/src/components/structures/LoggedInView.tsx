@@ -105,7 +105,6 @@ interface IState {
     backgroundImage?: string;
 }
 
-const NEW_ROOM_LIST_MIN_WIDTH = 68;
 /**
  * This is what our MatrixChat shows when we are logged in. The precise view is
  * determined by the page_type property.
@@ -703,7 +702,7 @@ class LoggedInView extends React.Component<IProps, IState> {
                     <LeftResizablePanelView
                         vm={resizerViewModel}
                         className="mx_LeftPanel_panel"
-                        minSize={`${NEW_ROOM_LIST_MIN_WIDTH}px`}
+                        minSize="200px"
                         maxSize="370px"
                         defaultSize="370px"
                     >
