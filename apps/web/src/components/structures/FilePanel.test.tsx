@@ -48,7 +48,7 @@ describe("FilePanel", () => {
             clientAndSDKContextRenderOptions(cli, SDKContextClass.instance),
         );
         await waitFor(() => {
-            expect(screen.getByText("No files visible in this room")).toBeInTheDocument();
+            expect(screen.getByText("No files in this room")).toBeInTheDocument();
         });
         expect(screen.getByPlaceholderText("Search by file name…")).toBeInTheDocument();
         expect(screen.getByTestId("filter-tab-file-panel-media")).toBeInTheDocument();
@@ -107,7 +107,7 @@ describe("FilePanel", () => {
             />,
             clientAndSDKContextRenderOptions(cli, SDKContextClass.instance),
         );
-        await screen.findByText("No files visible in this room");
+        await screen.findByText("No files in this room");
         const requests = vi.mocked(index!.loadFileEvents).mock.calls.length;
         fireEvent.change(screen.getByPlaceholderText("Search by file name…"), { target: { value: "draft" } });
         expect(screen.getByRole("status")).toHaveTextContent("Waiting to search…");
@@ -248,7 +248,7 @@ describe("FilePanel", () => {
             />,
             clientAndSDKContextRenderOptions(cli, SDKContextClass.instance),
         );
-        await screen.findByText("No files visible in this room");
+        await screen.findByText("No files in this room");
         rerender(
             <FilePanel
                 roomId={secondRoom.roomId}
@@ -288,7 +288,7 @@ describe("FilePanel", () => {
                 </VirtuosoMockContext.Provider>,
                 clientAndSDKContextRenderOptions(cli, SDKContextClass.instance),
             );
-            await screen.findByText("No files visible in this room");
+            await screen.findByText("No files in this room");
 
             const event = mkEvent({
                 type: "m.room.message",
