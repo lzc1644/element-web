@@ -6,7 +6,7 @@
  */
 
 import React, { type PropsWithChildren } from "react";
-import { Group, type Layout } from "react-resizable-panels";
+import { Group, type Layout, type LayoutChangedMeta } from "react-resizable-panels";
 
 import { type ViewModel, useViewModel } from "../../core/viewmodel";
 import { LEFT_PANEL_ID } from "..";
@@ -14,9 +14,10 @@ import { LEFT_PANEL_ID } from "..";
 export interface GroupViewActions {
     /**
      * Indicates to the view-model that the left panel was resized.
-     * @param newSize The new size of the left panel
+     * @param newSize The new size of the left panel, as a percentage.
+     * @param isUserInteraction Whether a pointer or keyboard resize caused the change.
      */
-    onLeftPanelResized: (newSize: number) => void;
+    onLeftPanelResized: (newSize: number, isUserInteraction: boolean) => void;
 }
 
 interface Props {
@@ -33,9 +34,9 @@ export function GroupView({ vm, children }: PropsWithChildren<Props>): React.Rea
      * Take layout data provided by the library and pass just the size
      * of the left panel to the vm.
      */
-    const onLayoutChanged = (layout: Layout): void => {
+    const onLayoutChanged = (layout: Layout, { isUserInteraction }: LayoutChangedMeta): void => {
         const newSize = layout[LEFT_PANEL_ID];
-        vm.onLeftPanelResized(newSize);
+        vm.onLeftPanelResized(newSize, isUserInteraction);
     };
 
     return <Group onLayoutChanged={onLayoutChanged}>{children}</Group>;

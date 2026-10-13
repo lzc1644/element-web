@@ -8,6 +8,7 @@
 import React, { type JSX, memo, useId, useState } from "react";
 import { ChatFilter, IconButton } from "@vector-im/compound-web";
 import ChevronDownIcon from "@vector-im/compound-design-tokens/assets/web/icons/chevron-down";
+import { FilterIcon, CloseIcon } from "@vector-im/compound-design-tokens/assets/web/icons";
 
 import { Flex } from "../../core/utils/Flex";
 import { _t } from "../../core/i18n/i18n";
@@ -69,51 +70,67 @@ export const RoomListPrimaryFilters = memo(function RoomListPrimaryFilters({
     const visibleFilterIds = useVisibleFilters(filterIds, activeFilterId, wrappingIndex);
 
     return (
-        <Flex
-            className={styles.roomListPrimaryFilters}
-            data-testid="primary-filters"
-            gap="var(--cpd-space-3x)"
-            direction="row-reverse"
-            justify="space-between"
-        >
-            {displayChevron && (
+        <>
+            {activeFilterId && (
                 <IconButton
-                    kind="secondary"
-                    aria-expanded={isExpanded}
-                    aria-controls={id}
-                    className={styles.iconButton}
-                    aria-label={isExpanded ? _t("room_list|collapse_filters") : _t("room_list|expand_filters")}
-                    size="28px"
-                    onClick={() => setIsExpanded((expanded) => !expanded)}
+                    className={styles.compactFilter}
+                    size="32px"
+                    tooltip={_t("room_list|clear_filter", { filter: filterIdToLabel(activeFilterId) })}
+                    aria-label={_t("room_list|clear_filter", { filter: filterIdToLabel(activeFilterId) })}
+                    onClick={() => onToggleFilter(activeFilterId)}
                 >
-                    <ChevronDownIcon />
+                    <span className={styles.filterIcon}>
+                        <FilterIcon />
+                        <CloseIcon className={styles.clearIcon} />
+                    </span>
                 </IconButton>
             )}
             <Flex
-                id={id}
-                as="div"
-                role="listbox"
-                aria-label={_t("room_list|primary_filters")}
-                align="center"
-                gap="var(--cpd-space-2x)"
-                wrap="wrap"
-                className={styles.list}
-                ref={ref}
+                className={styles.roomListPrimaryFilters}
+                data-testid="primary-filters"
+                gap="var(--cpd-space-3x)"
+                direction="row-reverse"
+                justify="space-between"
             >
-                {visibleFilterIds.map((filterId, index) => (
-                    <ChatFilter
-                        // oxlint-disable-next-line react/no-array-index-key
-                        key={`${filterId}-${index}`}
-                        role="option"
-                        tabIndex={0}
-                        aria-selected={filterId === activeFilterId}
-                        selected={filterId === activeFilterId}
-                        onClick={() => onToggleFilter(filterId)}
+                {displayChevron && (
+                    <IconButton
+                        kind="secondary"
+                        aria-expanded={isExpanded}
+                        aria-controls={id}
+                        className={styles.iconButton}
+                        aria-label={isExpanded ? _t("room_list|collapse_filters") : _t("room_list|expand_filters")}
+                        size="28px"
+                        onClick={() => setIsExpanded((expanded) => !expanded)}
                     >
-                        {filterIdToLabel(filterId)}
-                    </ChatFilter>
-                ))}
+                        <ChevronDownIcon />
+                    </IconButton>
+                )}
+                <Flex
+                    id={id}
+                    as="div"
+                    role="listbox"
+                    aria-label={_t("room_list|primary_filters")}
+                    align="center"
+                    gap="var(--cpd-space-2x)"
+                    wrap="wrap"
+                    className={styles.list}
+                    ref={ref}
+                >
+                    {visibleFilterIds.map((filterId, index) => (
+                        <ChatFilter
+                            // oxlint-disable-next-line react/no-array-index-key
+                            key={`${filterId}-${index}`}
+                            role="option"
+                            tabIndex={0}
+                            aria-selected={filterId === activeFilterId}
+                            selected={filterId === activeFilterId}
+                            onClick={() => onToggleFilter(filterId)}
+                        >
+                            {filterIdToLabel(filterId)}
+                        </ChatFilter>
+                    ))}
+                </Flex>
             </Flex>
-        </Flex>
+        </>
     );
 });

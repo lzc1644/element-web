@@ -427,11 +427,12 @@ describe("<LoggedInView />", () => {
         });
     });
 
-    it("should use the upstream room list resize limits", () => {
+    it("should allow an avatar-width room list without changing the full-width limit", () => {
         getComponent({ page_type: "room" });
 
         expect(vi.mocked(LeftResizablePanelView).mock.calls[0][0]).toMatchObject({
-            minSize: "200px",
+            minSize: "64px",
+            collapsedThreshold: "32px",
             maxSize: "370px",
             defaultSize: "370px",
         });

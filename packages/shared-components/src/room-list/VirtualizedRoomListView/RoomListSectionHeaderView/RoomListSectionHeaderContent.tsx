@@ -46,7 +46,7 @@ export const RoomListSectionHeaderContent = memo(function RoomListSectionHeaderC
             justify="space-between"
             gap="var(--cpd-space-2x)"
         >
-            <Flex align="center" gap="var(--cpd-space-0-5x)">
+            <Flex className={styles.label} align="center" gap="var(--cpd-space-0-5x)">
                 <ChevronRightIcon
                     className={styles.chevron}
                     width="24px"

@@ -21,6 +21,7 @@ import { throttle } from "lodash";
 
 export default class ResizeNotifier extends EventEmitter {
     private _isResizing = false;
+    private _minimumContentWidth = 0;
 
     // with default options, will call fn once at first call, and then every x ms
     // if there was another call in that timespan
@@ -28,6 +29,19 @@ export default class ResizeNotifier extends EventEmitter {
 
     public get isResizing(): boolean {
         return this._isResizing;
+    }
+
+    /** Minimum width requested by the currently rendered split layout, or zero if it has no side panel. */
+    public get minimumContentWidth(): number {
+        return this._minimumContentWidth;
+    }
+
+    /** Publish the actual split layout's constraint to its outer resizable panel. */
+    public setMinimumContentWidth(width: number): void {
+        // The consumer re-renders the split; do not notify it again for the same constraint.
+        if (this._minimumContentWidth === width) return;
+        this._minimumContentWidth = width;
+        this.emit("minimumContentWidthChanged", width);
     }
 
     public startResizing(): void {

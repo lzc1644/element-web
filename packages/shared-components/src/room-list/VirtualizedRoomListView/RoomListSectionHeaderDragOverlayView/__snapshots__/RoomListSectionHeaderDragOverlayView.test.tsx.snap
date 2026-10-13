@@ -14,7 +14,7 @@ exports[`<RoomListSectionHeaderDragOverlayView /> stories > renders Default stor
         style="--mx-flex-display: flex; --mx-flex-direction: row; --mx-flex-align: center; --mx-flex-justify: space-between; --mx-flex-gap: var(--cpd-space-2x); --mx-flex-wrap: nowrap;"
       >
         <div
-          class="Flex-module_flex"
+          class="Flex-module_flex RoomListSectionHeaderView-module_label"
           style="--mx-flex-display: flex; --mx-flex-direction: row; --mx-flex-align: center; --mx-flex-justify: start; --mx-flex-gap: var(--cpd-space-0-5x); --mx-flex-wrap: nowrap;"
         >
           <svg

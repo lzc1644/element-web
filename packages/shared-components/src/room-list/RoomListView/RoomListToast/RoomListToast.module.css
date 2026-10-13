@@ -15,3 +15,10 @@
     /* Put the toast over the sticky headers  */
     z-index: 3;
 }
+
+@container room-list-panel (width < 200px) {
+    .label,
+    .eventToast {
+        display: none;
+    }
+}

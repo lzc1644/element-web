@@ -191,6 +191,7 @@
         },
         "appearance": "Appearance",
         "chat_moved": "Chat moved",
+        "clear_filter": "Clear %(filter)s filter",
         "collapse_all_sections": "Collapse all sections",
         "collapse_filters": "Collapse filter list",
         "empty": {

@@ -146,13 +146,55 @@ exports[`<RoomListPrimaryFilters /> stories > snapshots > renders NarrowWithActi
   <div
     style="width: 170px; border: 1px dashed var(--cpd-color-border-interactive-secondary);"
   >
+    <button
+      aria-label="Clear Unread filter"
+      aria-labelledby="react-use-id-1"
+      class="_icon-button_1215g_8 RoomListPrimaryFilters-module_compactFilter"
+      data-kind="primary"
+      role="button"
+      style="--cpd-icon-button-size: 32px;"
+      tabindex="0"
+    >
+      <div
+        class="_indicator-icon_147l5_17"
+        style="--cpd-icon-button-size: 100%;"
+      >
+        <span
+          class="RoomListPrimaryFilters-module_filterIcon"
+        >
+          <svg
+            fill="currentColor"
+            height="1em"
+            viewBox="0 0 24 24"
+            width="1em"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M5 7a1 1 0 0 0 0 2h14a1 1 0 1 0 0-2zm3 4a1 1 0 1 0 0 2h8a1 1 0 1 0 0-2zm2 5a1 1 0 0 1 1-1h2a1 1 0 1 1 0 2h-2a1 1 0 0 1-1-1"
+            />
+          </svg>
+          <svg
+            class="RoomListPrimaryFilters-module_clearIcon"
+            fill="currentColor"
+            height="1em"
+            viewBox="0 0 24 24"
+            width="1em"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M6.293 6.293a1 1 0 0 1 1.414 0L12 10.586l4.293-4.293a1 1 0 1 1 1.414 1.414L13.414 12l4.293 4.293a1 1 0 0 1-1.414 1.414L12 13.414l-4.293 4.293a1 1 0 0 1-1.414-1.414L10.586 12 6.293 7.707a1 1 0 0 1 0-1.414"
+            />
+          </svg>
+        </span>
+      </div>
+    </button>
     <div
       class="Flex-module_flex RoomListPrimaryFilters-module_roomListPrimaryFilters"
       data-testid="primary-filters"
       style="--mx-flex-display: flex; --mx-flex-direction: row-reverse; --mx-flex-align: start; --mx-flex-justify: space-between; --mx-flex-gap: var(--cpd-space-3x); --mx-flex-wrap: nowrap;"
     >
       <button
-        aria-controls="react-use-id-1"
+        aria-controls="react-use-id-2"
         aria-expanded="false"
         aria-label="Expand filter list"
         class="_icon-button_1215g_8 RoomListPrimaryFilters-module_iconButton"
@@ -181,7 +223,7 @@ exports[`<RoomListPrimaryFilters /> stories > snapshots > renders NarrowWithActi
       <div
         aria-label="Room list filters"
         class="Flex-module_flex RoomListPrimaryFilters-module_list"
-        id="react-use-id-1"
+        id="react-use-id-2"
         role="listbox"
         style="--mx-flex-display: flex; --mx-flex-direction: row; --mx-flex-align: center; --mx-flex-justify: start; --mx-flex-gap: var(--cpd-space-2x); --mx-flex-wrap: wrap;"
       >
@@ -235,6 +277,48 @@ exports[`<RoomListPrimaryFilters /> stories > snapshots > renders NoFilters stor
 
 exports[`<RoomListPrimaryFilters /> stories > snapshots > renders PeopleSelected story 1`] = `
 <div>
+  <button
+    aria-label="Clear People filter"
+    aria-labelledby="react-use-id-1"
+    class="_icon-button_1215g_8 RoomListPrimaryFilters-module_compactFilter"
+    data-kind="primary"
+    role="button"
+    style="--cpd-icon-button-size: 32px;"
+    tabindex="0"
+  >
+    <div
+      class="_indicator-icon_147l5_17"
+      style="--cpd-icon-button-size: 100%;"
+    >
+      <span
+        class="RoomListPrimaryFilters-module_filterIcon"
+      >
+        <svg
+          fill="currentColor"
+          height="1em"
+          viewBox="0 0 24 24"
+          width="1em"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 7a1 1 0 0 0 0 2h14a1 1 0 1 0 0-2zm3 4a1 1 0 1 0 0 2h8a1 1 0 1 0 0-2zm2 5a1 1 0 0 1 1-1h2a1 1 0 1 1 0 2h-2a1 1 0 0 1-1-1"
+          />
+        </svg>
+        <svg
+          class="RoomListPrimaryFilters-module_clearIcon"
+          fill="currentColor"
+          height="1em"
+          viewBox="0 0 24 24"
+          width="1em"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M6.293 6.293a1 1 0 0 1 1.414 0L12 10.586l4.293-4.293a1 1 0 1 1 1.414 1.414L13.414 12l4.293 4.293a1 1 0 0 1-1.414 1.414L12 13.414l-4.293 4.293a1 1 0 0 1-1.414-1.414L10.586 12 6.293 7.707a1 1 0 0 1 0-1.414"
+          />
+        </svg>
+      </span>
+    </div>
+  </button>
   <div
     class="Flex-module_flex RoomListPrimaryFilters-module_roomListPrimaryFilters"
     data-testid="primary-filters"
@@ -243,7 +327,7 @@ exports[`<RoomListPrimaryFilters /> stories > snapshots > renders PeopleSelected
     <div
       aria-label="Room list filters"
       class="Flex-module_flex RoomListPrimaryFilters-module_list"
-      id="react-use-id-1"
+      id="react-use-id-2"
       role="listbox"
       style="--mx-flex-display: flex; --mx-flex-direction: row; --mx-flex-align: center; --mx-flex-justify: start; --mx-flex-gap: var(--cpd-space-2x); --mx-flex-wrap: wrap;"
     >

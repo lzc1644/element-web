@@ -6,7 +6,7 @@
  */
 
 import React, { type JSX, type MouseEventHandler } from "react";
-import { Button } from "@vector-im/compound-web";
+import { Button, Tooltip } from "@vector-im/compound-web";
 import ExploreIcon from "@vector-im/compound-design-tokens/assets/web/icons/explore";
 import SearchIcon from "@vector-im/compound-design-tokens/assets/web/icons/search";
 import DialPadIcon from "@vector-im/compound-design-tokens/assets/web/icons/dial-pad";
@@ -80,19 +80,22 @@ export function RoomListSearchView({ vm }: Readonly<RoomListSearchViewProps>): J
             gap="var(--cpd-space-2x)"
             align="center"
         >
-            <Button
-                id="room-list-search-button"
-                className={styles.search}
-                kind="secondary"
-                size="md"
-                Icon={SearchIcon}
-                onClick={vm.onSearchClick}
-            >
-                <Flex className={styles["search_container"]} as="span" justify="space-between">
-                    <span className={styles["search_text"]}>{_t("action|search")}</span>
-                    <kbd>{searchShortcut}</kbd>
-                </Flex>
-            </Button>
+            <Tooltip description={_t("action|search")} caption={searchShortcut} placement="right">
+                <Button
+                    id="room-list-search-button"
+                    aria-label={_t("action|search")}
+                    className={styles.search}
+                    kind="secondary"
+                    size="md"
+                    Icon={SearchIcon}
+                    onClick={vm.onSearchClick}
+                >
+                    <Flex className={styles["search_container"]} as="span" justify="space-between">
+                        <span className={styles["search_text"]}>{_t("action|search")}</span>
+                        <kbd>{searchShortcut}</kbd>
+                    </Flex>
+                </Button>
+            </Tooltip>
             {displayDialButton && (
                 <Button
                     kind="secondary"

@@ -101,6 +101,7 @@ interface IState {
     usageLimitEventContent?: IUsageLimit;
     usageLimitEventTs?: number;
     useCompactLayout: boolean;
+    minimumContentWidth: number;
     activeCalls: Array<MatrixCall>;
     backgroundImage?: string;
 }
@@ -137,6 +138,7 @@ class LoggedInView extends React.Component<IProps, IState> {
             // use compact timeline view
             useCompactLayout: SettingsStore.getValue("useCompactLayout"),
             usageLimitDismissed: false,
+            minimumContentWidth: Math.max(360, context.resizeNotifier.minimumContentWidth),
             activeCalls: context.legacyCallHandler.getAllActiveCalls(),
         };
 
@@ -151,6 +153,9 @@ class LoggedInView extends React.Component<IProps, IState> {
     public componentDidMount(): void {
         document.addEventListener("keydown", this.onNativeKeyDown, false);
         this.context.legacyCallHandler.addListener(LegacyCallHandlerEvent.CallState, this.onCallState);
+        this.context.resizeNotifier.on("minimumContentWidthChanged", this.onMinimumContentWidthChanged);
+        // Child layouts mount first, so consume any constraint they already reported.
+        this.onMinimumContentWidthChanged();
 
         void this.updateServerNoticeEvents();
 
@@ -229,6 +234,7 @@ class LoggedInView extends React.Component<IProps, IState> {
     public componentWillUnmount(): void {
         document.removeEventListener("keydown", this.onNativeKeyDown, false);
         this.context.legacyCallHandler.removeListener(LegacyCallHandlerEvent.CallState, this.onCallState);
+        this.context.resizeNotifier.off("minimumContentWidthChanged", this.onMinimumContentWidthChanged);
         this._matrixClient.removeListener(ClientEvent.AccountData, this.onAccountData);
         this._matrixClient.removeListener(ClientEvent.Sync, this.onSync);
         this._matrixClient.removeListener(RoomStateEvent.Events, this.onRoomStateEvents);
@@ -239,6 +245,10 @@ class LoggedInView extends React.Component<IProps, IState> {
         this.timezoneProfileUpdateRef?.forEach((s) => SettingsStore.unwatchSetting(s));
         this.disposeResizerViewModel();
     }
+
+    private onMinimumContentWidthChanged = (): void => {
+        this.setState({ minimumContentWidth: Math.max(360, this.context.resizeNotifier.minimumContentWidth) });
+    };
 
     private onCallState = (): void => {
         const activeCalls = this.context.legacyCallHandler.getAllActiveCalls();
@@ -702,14 +712,17 @@ class LoggedInView extends React.Component<IProps, IState> {
                     <LeftResizablePanelView
                         vm={resizerViewModel}
                         className="mx_LeftPanel_panel"
-                        minSize="200px"
+                        minSize="64px"
+                        collapsedThreshold="32px"
                         maxSize="370px"
                         defaultSize="370px"
                     >
                         {leftPanel}
                     </LeftResizablePanelView>
                     <SeparatorView className="mx_Separator" vm={resizerViewModel} />
-                    <Panel className="mx_LeftPanel_panel">{roomView}</Panel>
+                    <Panel className="mx_LeftPanel_panel" minSize={this.state.minimumContentWidth}>
+                        {roomView}
+                    </Panel>
                 </GroupView>
             );
         } else {

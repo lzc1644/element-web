@@ -12,6 +12,7 @@ exports[`<NotificationDecoration /> > snapshots > renders ActivityIndicator stor
     >
       <div
         class="_unread_cti0f_8"
+        data-compact-hidden="false"
       >
         <div />
       </div>
@@ -31,6 +32,7 @@ exports[`<NotificationDecoration /> > snapshots > renders Invited story 1`] = `
       style="--mx-flex-display: flex; --mx-flex-direction: row; --mx-flex-align: center; --mx-flex-justify: center; --mx-flex-gap: var(--cpd-space-1x); --mx-flex-wrap: nowrap;"
     >
       <svg
+        data-compact-hidden="false"
         fill="var(--cpd-color-icon-accent-primary)"
         height="20px"
         viewBox="0 0 24 24"
@@ -57,6 +59,7 @@ exports[`<NotificationDecoration /> > snapshots > renders Mention story 1`] = `
       style="--mx-flex-display: flex; --mx-flex-direction: row; --mx-flex-align: center; --mx-flex-justify: center; --mx-flex-gap: var(--cpd-space-1x); --mx-flex-wrap: nowrap;"
     >
       <svg
+        data-compact-hidden="true"
         fill="var(--cpd-color-icon-accent-primary)"
         height="20px"
         viewBox="0 0 24 24"
@@ -69,6 +72,7 @@ exports[`<NotificationDecoration /> > snapshots > renders Mention story 1`] = `
       </svg>
       <div
         class="_unread-counter_1147r_8"
+        data-compact-hidden="false"
       />
     </div>
   </div>
@@ -86,6 +90,7 @@ exports[`<NotificationDecoration /> > snapshots > renders MentionWithCount story
       style="--mx-flex-display: flex; --mx-flex-direction: row; --mx-flex-align: center; --mx-flex-justify: center; --mx-flex-gap: var(--cpd-space-1x); --mx-flex-wrap: nowrap;"
     >
       <svg
+        data-compact-hidden="true"
         fill="var(--cpd-color-icon-accent-primary)"
         height="20px"
         viewBox="0 0 24 24"
@@ -98,6 +103,7 @@ exports[`<NotificationDecoration /> > snapshots > renders MentionWithCount story
       </svg>
       <span
         class="_unread-counter_1147r_8"
+        data-compact-hidden="false"
       >
         5
       </span>
@@ -117,6 +123,7 @@ exports[`<NotificationDecoration /> > snapshots > renders Muted story 1`] = `
       style="--mx-flex-display: flex; --mx-flex-direction: row; --mx-flex-align: center; --mx-flex-justify: center; --mx-flex-gap: var(--cpd-space-1x); --mx-flex-wrap: nowrap;"
     >
       <svg
+        data-compact-hidden="false"
         fill="var(--cpd-color-icon-tertiary)"
         height="20px"
         viewBox="0 0 24 24"
@@ -155,6 +162,7 @@ exports[`<NotificationDecoration /> > snapshots > renders NotificationWithCount 
     >
       <span
         class="_unread-counter_1147r_8"
+        data-compact-hidden="false"
       >
         3
       </span>
@@ -174,6 +182,7 @@ exports[`<NotificationDecoration /> > snapshots > renders UnsentMessage story 1`
       style="--mx-flex-display: flex; --mx-flex-direction: row; --mx-flex-align: center; --mx-flex-justify: center; --mx-flex-gap: var(--cpd-space-1x); --mx-flex-wrap: nowrap;"
     >
       <svg
+        data-compact-hidden="false"
         fill="var(--cpd-color-icon-critical-primary)"
         height="20px"
         viewBox="0 0 24 24"
@@ -200,6 +209,7 @@ exports[`<NotificationDecoration /> > snapshots > renders VideoCall story 1`] = 
       style="--mx-flex-display: flex; --mx-flex-direction: row; --mx-flex-align: center; --mx-flex-justify: center; --mx-flex-gap: var(--cpd-space-1x); --mx-flex-wrap: nowrap;"
     >
       <svg
+        data-compact-hidden="false"
         fill="var(--cpd-color-icon-accent-primary)"
         height="20px"
         viewBox="0 0 24 24"
@@ -226,6 +236,7 @@ exports[`<NotificationDecoration /> > snapshots > renders VoiceCall story 1`] = 
       style="--mx-flex-display: flex; --mx-flex-direction: row; --mx-flex-align: center; --mx-flex-justify: center; --mx-flex-gap: var(--cpd-space-1x); --mx-flex-wrap: nowrap;"
     >
       <svg
+        data-compact-hidden="false"
         fill="var(--cpd-color-icon-accent-primary)"
         height="20px"
         viewBox="0 0 24 24"

@@ -34,6 +34,7 @@ describe("<MainSplit/>", () => {
     it("renders", () => {
         const { asFragment, container } = render(
             <MainSplit children={children} panel={panel} analyticsRoomType="other_room" />,
+            { wrapper: ({ children }) => <SDKContext.Provider value={sdkContext}>{children}</SDKContext.Provider> },
         );
         expect(asFragment()).toMatchSnapshot();
         // Assert it matches the default width of 320
@@ -43,6 +44,7 @@ describe("<MainSplit/>", () => {
     it("respects defaultSize prop", () => {
         const { asFragment, container } = render(
             <MainSplit children={children} panel={panel} defaultSize={500} analyticsRoomType="other_room" />,
+            { wrapper: ({ children }) => <SDKContext.Provider value={sdkContext}>{children}</SDKContext.Provider> },
         );
         expect(asFragment()).toMatchSnapshot();
         // Assert it matches the default width of 350
@@ -59,8 +61,25 @@ describe("<MainSplit/>", () => {
                 defaultSize={400}
                 analyticsRoomType="other_room"
             />,
+            { wrapper: ({ children }) => <SDKContext.Provider value={sdkContext}>{children}</SDKContext.Provider> },
         );
         expect(container.querySelector<HTMLElement>(".mx_RightPanel_ResizeWrapper")!.style.width).toBe("333px");
+    });
+
+    it("should report a minimum content width only while a right panel is actually rendered", () => {
+        const { rerender, unmount } = render(
+            <MainSplit children={children} panel={panel} analyticsRoomType="other_room" />,
+            { wrapper: ({ children }) => <SDKContext.Provider value={sdkContext}>{children}</SDKContext.Provider> },
+        );
+        expect(sdkContext.resizeNotifier.minimumContentWidth).toBe(640);
+        rerender(<MainSplit children={children} analyticsRoomType="other_room" />);
+        expect(sdkContext.resizeNotifier.minimumContentWidth).toBe(0);
+        rerender(<MainSplit children={children} panel={panel} collapsedRhs analyticsRoomType="other_room" />);
+        expect(sdkContext.resizeNotifier.minimumContentWidth).toBe(0);
+        rerender(<MainSplit children={children} panel={panel} analyticsRoomType="other_room" />);
+        expect(sdkContext.resizeNotifier.minimumContentWidth).toBe(640);
+        unmount();
+        expect(sdkContext.resizeNotifier.minimumContentWidth).toBe(0);
     });
 
     it("should report to analytics on resize stop", () => {

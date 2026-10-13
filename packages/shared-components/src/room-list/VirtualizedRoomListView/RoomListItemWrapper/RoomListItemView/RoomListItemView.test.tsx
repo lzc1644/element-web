@@ -84,6 +84,23 @@ describe("<RoomListItemView />", () => {
         expect(container).toMatchSnapshot();
     });
 
+    it("should keep the avatar, unread badge and keyboard menu in the narrow rail", async () => {
+        const user = userEvent.setup();
+        render(
+            <div style={{ width: "64px", containerType: "inline-size", containerName: "room-list-panel" }}>
+                <WithNotification isFocused={true} showMoreOptionsMenu={true} />
+            </div>,
+        );
+
+        expect(screen.getByRole("img").getBoundingClientRect().width).toBe(32);
+        expect(screen.getByTestId("room-name")).not.toBeVisible();
+        expect(screen.getByTestId("notification-decoration")).toBeVisible();
+        expect(screen.getByRole("button", { name: "More Options", hidden: true })).not.toBeVisible();
+
+        await user.keyboard("{Shift>}{F10}{/Shift}");
+        expect(screen.getByRole("menu", { name: "More Options" })).toBeVisible();
+    });
+
     it("should call onOpenRoom when clicked", async () => {
         const user = userEvent.setup();
         render(<Default />);

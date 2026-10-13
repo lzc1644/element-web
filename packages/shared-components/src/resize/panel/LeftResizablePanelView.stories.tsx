@@ -26,7 +26,7 @@ type LeftResizablePanelViewProps = ResizerViewSnapshot & LeftResizablePanelViewA
 const Wrapper = ({ onLeftPanelResize, setPanelHandle, ...snapshot }: LeftResizablePanelViewProps): JSX.Element => {
     const vm = useMockedViewModel(snapshot, { onLeftPanelResize, setPanelHandle });
     return (
-        <LeftResizablePanelView vm={vm} minSize="200px" maxSize="400px">
+        <LeftResizablePanelView vm={vm} minSize="64px" collapsedThreshold="32px" maxSize="370px">
             <Flex align="center" justify="center">
                 LEFT CONTENT
             </Flex>

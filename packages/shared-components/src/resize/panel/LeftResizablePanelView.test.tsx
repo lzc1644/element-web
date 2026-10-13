@@ -6,7 +6,7 @@
  */
 
 import React from "react";
-import { render, screen } from "@test-utils";
+import { act, render, screen, waitFor } from "@test-utils";
 import { composeStories } from "@storybook/react-vite";
 import { describe, it, expect, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
@@ -40,10 +40,14 @@ function renderPanel(initialSnapshot?: Partial<ResizerViewSnapshot>): MockViewMo
     const snapshot = { isCollapsed: false, isFocusedViaKeyboard: false, initialSize: 20, ...initialSnapshot };
     const vm = new MockViewModel(snapshot);
     render(
-        <ResizableGroup>
-            <LeftResizablePanelView vm={vm}>Left</LeftResizablePanelView>
+        <ResizableGroup style={{ width: "900px", height: "300px" }}>
+            <LeftResizablePanelView vm={vm} minSize="64px" maxSize="370px" collapsedThreshold="32px">
+                Left
+            </LeftResizablePanelView>
             <Separator />
-            <Panel>Test</Panel>
+            <Panel id="main-content" minSize="360px">
+                Test
+            </Panel>
         </ResizableGroup>,
     );
     return vm;
@@ -70,6 +74,44 @@ describe("<LeftResizablePanelView />", () => {
             { keys: "[/MouseLeft]" },
         ]);
         expect(vm.onLeftPanelResize).toHaveBeenCalled();
+    });
+
+    it("should restore a pixel width, resize continuously and reverse a collapse", async () => {
+        const vm = renderPanel({ initialSize: "150px" });
+        const handle = vi.mocked(vm.setPanelHandle).mock.calls[0][0];
+        expect(handle.getSize().inPixels).toBeCloseTo(150);
+        act(() => {
+            handle.resize("64px");
+        });
+        expect(handle.getSize().inPixels).toBeCloseTo(64);
+        act(() => {
+            handle.resize("150px");
+        });
+        expect(handle.getSize().inPixels).toBeCloseTo(150);
+
+        const user = userEvent.setup();
+        const separator = screen.getByRole("separator");
+        const mainContent = screen.getByTestId("main-content");
+        const initialContentWidth = mainContent.getBoundingClientRect().width;
+        const dragBy = async (delta: number): Promise<void> => {
+            const { x, y, width, height } = separator.getBoundingClientRect();
+            const start = { x: x + width / 2, y: y + height / 2 };
+            await user.pointer([
+                { target: separator, keys: "[MouseLeft>]", coords: start },
+                { coords: { ...start, x: start.x + delta } },
+                { keys: "[/MouseLeft]" },
+            ]);
+        };
+
+        await dragBy(-50);
+        await waitFor(() => expect(handle.getSize().inPixels).toBeCloseTo(100));
+        expect(mainContent.getBoundingClientRect().width).toBeCloseTo(initialContentWidth + 50);
+        await dragBy(-36);
+        await waitFor(() => expect(handle.getSize().inPixels).toBeCloseTo(64));
+        await dragBy(-36);
+        await waitFor(() => expect(handle.getSize().inPixels).toBe(0));
+        await dragBy(40);
+        await waitFor(() => expect(handle.getSize().inPixels).toBeCloseTo(64));
     });
 
     it("should be inert when collapsed", () => {
