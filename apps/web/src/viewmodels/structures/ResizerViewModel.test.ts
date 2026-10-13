@@ -80,7 +80,7 @@ describe("LeftPanelResizerViewModel", () => {
         expect(() => {
             // Click
             vm.onPointerDown(pointerAt(100, 100));
-            vm.onPointerUp();
+            vm.onPointerUp(pointerAt(100, 100));
         }).not.toThrow();
     });
 
@@ -100,9 +100,25 @@ describe("LeftPanelResizerViewModel", () => {
         // Simulate drag
         vm.onPointerDown(pointerAt(100, 100));
         vm.onPointerMove(pointerAt(160, 100));
-        vm.onPointerUp();
+        vm.onPointerUp(pointerAt(160, 100));
 
         expect(mockHandle.resize).not.toHaveBeenCalledWith("34%");
+    });
+
+    it.each([0, 64])("should not reopen a %ipx panel when a fast drag has no intermediate pointer move", (width) => {
+        const vm = new ResizerViewModel(CallStore.instance);
+        const handle = {
+            resize: vi.fn(),
+            isCollapsed: () => width === 0,
+            getSize: () => ({ inPixels: width }),
+        } as unknown as PanelImperativeHandle;
+        vm.setPanelHandle(handle);
+
+        vm.onPointerDown(pointerAt(400, 100));
+        vm.onPointerUp(pointerAt(80, 100));
+
+        expect(handle.resize).not.toHaveBeenCalled();
+        vm.dispose();
     });
 
     it("should expand panel when a click wanders a little", () => {
@@ -118,7 +134,7 @@ describe("LeftPanelResizerViewModel", () => {
         // A trackpad rarely holds the pointer still between press and release.
         vm.onPointerDown(pointerAt(100, 100));
         vm.onPointerMove(pointerAt(101, 102));
-        vm.onPointerUp();
+        vm.onPointerUp(pointerAt(101, 102));
 
         expect(mockHandle.resize).toHaveBeenCalledWith("34%");
         expect(SettingsStore.getValue("RoomList.isPanelCollapsed")).toBe(false);
@@ -137,7 +153,7 @@ describe("LeftPanelResizerViewModel", () => {
         // Pointer moves fire on hover too, with no button held.
         vm.onPointerMove(pointerAt(300, 300));
         vm.onPointerDown(pointerAt(100, 100));
-        vm.onPointerUp();
+        vm.onPointerUp(pointerAt(100, 100));
 
         expect(mockHandle.resize).toHaveBeenCalledWith("34%");
     });
@@ -154,7 +170,7 @@ describe("LeftPanelResizerViewModel", () => {
             vm.setPanelHandle(mockHandle);
             // Simulate click
             vm.onPointerDown(pointerAt(100, 100));
-            vm.onPointerUp();
+            vm.onPointerUp(pointerAt(100, 100));
             expect(mockHandle.resize).toHaveBeenCalledWith("34%");
         });
 
@@ -168,7 +184,7 @@ describe("LeftPanelResizerViewModel", () => {
             vm.setPanelHandle(mockHandle);
             // Simulate click
             vm.onPointerDown(pointerAt(100, 100));
-            vm.onPointerUp();
+            vm.onPointerUp(pointerAt(100, 100));
             expect(mockHandle.resize).toHaveBeenCalledWith("370px");
         });
     });

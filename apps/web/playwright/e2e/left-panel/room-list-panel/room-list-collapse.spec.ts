@@ -32,13 +32,15 @@ test.describe("Collapsible Room list", () => {
         const leftPanelLocator = page.getByTestId("left-panel");
         const boundingBox = await leftPanelLocator.boundingBox();
 
-        // Move mouse 2px to the right of the left-panel, this should be region that the user drags to resize the panel.
-        const mouseX = boundingBox!.x + boundingBox!.width + 2;
-        const mouseY = boundingBox!.y + boundingBox!.height / 2;
+        const separator = page.getByRole("separator", { name: /Click or drag to/ });
+        const separatorBoundingBox = await separator.boundingBox();
+        const mouseX = separatorBoundingBox!.x + separatorBoundingBox!.width / 2;
+        const mouseY = separatorBoundingBox!.y + separatorBoundingBox!.height / 2;
 
         await page.mouse.move(mouseX, mouseY);
         await page.mouse.down();
         await page.mouse.move(mouseX + pixels, mouseY);
+        await page.mouse.up();
 
         return boundingBox;
     }
@@ -58,29 +60,47 @@ test.describe("Collapsible Room list", () => {
         expect(currentBoundingBox!.width).toBeCloseTo(previousBoundingBox!.width + 30, 0);
     });
 
+    test("should keep rooms usable at the avatar rail width and restore it after reload", async ({ page }) => {
+        const leftPanelLocator = page.getByTestId("left-panel");
+        const initialBoundingBox = await leftPanelLocator.boundingBox();
+        await resize(page, 64 - initialBoundingBox!.width);
+        await expect.poll(async () => (await leftPanelLocator.boundingBox())!.width).toBeCloseTo(64, 0);
+
+        const room = leftPanelLocator.getByRole("option", { name: "Open room room0", exact: true });
+        await expect(room).toBeVisible();
+        await room.click();
+        await expect(page.getByRole("heading", { name: /room0/ })).toBeVisible();
+        await page.screenshot({ path: "/tmp/element-web-upstream-2026-10-13-avatar-rail.png" });
+
+        await page.reload();
+        await expect.poll(async () => (await leftPanelLocator.boundingBox())?.width).toBeCloseTo(64, 0);
+        await expect(room).toBeVisible();
+        await resize(page, 86);
+        await expect.poll(async () => (await leftPanelLocator.boundingBox())!.width).toBeCloseTo(150, 0);
+    });
+
     test(
         "should be possible to fully collapse and expand the left panel",
         { tag: "@screenshot" },
         async ({ page, app, user }) => {
             const leftPanelLocator = page.getByTestId("left-panel");
 
-            // Collapse the panel
-            await resize(page, -300);
+            // Drag through the narrow rail and past the collapse threshold, regardless of the initial width.
             let currentBoundingBox = await leftPanelLocator.boundingBox();
-            expect(currentBoundingBox!.width).toStrictEqual(0);
+            await resize(page, -currentBoundingBox!.width);
+            await expect.poll(async () => (await leftPanelLocator.boundingBox())!.width).toBe(0);
 
-            // Expect te separator to be shown
             const separator = page.getByRole("separator", { name: "Click or drag to expand" });
             await expect(separator).toBeInViewport();
             await expect(page).toMatchScreenshot("room-list-collapse-fully-collapsed.png");
 
             // Should be possible to expand by clicking on the separator
             await separator.click();
-            currentBoundingBox = await leftPanelLocator.boundingBox();
-            expect(currentBoundingBox!.width).toBeGreaterThan(365);
+            await expect.poll(async () => (await leftPanelLocator.boundingBox())!.width).toBeGreaterThan(365);
 
-            // Collapse the panel again
-            await resize(page, -300);
+            currentBoundingBox = await leftPanelLocator.boundingBox();
+            await resize(page, -currentBoundingBox!.width);
+            await expect.poll(async () => (await leftPanelLocator.boundingBox())!.width).toBe(0);
 
             // Check that the panel can be expanded by dragging the separator
             const separatorBoundingBox = await separator.boundingBox();
@@ -89,7 +109,8 @@ test.describe("Collapsible Room list", () => {
             await page.mouse.move(mouseX, mouseY);
             await page.mouse.down();
             await page.mouse.move(mouseX + 400, mouseY);
-            expect(currentBoundingBox!.width).toBeGreaterThan(365);
+            await page.mouse.up();
+            await expect.poll(async () => (await leftPanelLocator.boundingBox())!.width).toBeGreaterThan(365);
         },
     );
 });

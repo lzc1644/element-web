@@ -139,7 +139,9 @@ export class ResizerViewModel
         }
     };
 
-    public onPointerUp = (): void => {
+    public onPointerUp = (event: PointerEvent): void => {
+        // A fast drag can leave the separator before it receives a pointer move.
+        this.mouseClickHandler.onPointerMove(event.clientX, event.clientY);
         this.mouseClickHandler.onPointerUp();
     };
 
