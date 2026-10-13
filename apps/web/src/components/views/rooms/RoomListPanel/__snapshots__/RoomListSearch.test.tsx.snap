@@ -9,6 +9,7 @@ exports[`<RoomListSearch /> > renders 1`] = `
     style="--mx-flex-display: flex; --mx-flex-direction: row; --mx-flex-align: center; --mx-flex-justify: start; --mx-flex-gap: var(--cpd-space-2x); --mx-flex-wrap: nowrap;"
   >
     <button
+      aria-label="Search"
       class="_button _search _has-icon"
       data-kind="secondary"
       data-size="md"

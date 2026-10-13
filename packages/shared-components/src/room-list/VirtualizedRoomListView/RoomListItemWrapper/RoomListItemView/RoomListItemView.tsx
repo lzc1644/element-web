@@ -8,6 +8,7 @@
 import React, { type JSX, memo, useEffect, useRef, useState, type ReactNode, type Ref } from "react";
 import classNames from "classnames";
 import { useMergeRefs } from "react-merge-refs";
+import { Tooltip } from "@vector-im/compound-web";
 
 import { Flex } from "../../../../core/utils/Flex";
 import { type NotificationDecorationData } from "./NotificationDecoration";
@@ -219,36 +220,55 @@ export const RoomListItemView = memo(function RoomListItemView({
         }
     };
 
+    const onItemKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>): void => {
+        if (e.key === "ContextMenu" || (e.shiftKey && e.key === "F10")) {
+            e.preventDefault();
+            e.stopPropagation();
+            const { right, top, height } = e.currentTarget.getBoundingClientRect();
+            // Radix's context-menu trigger handles pointer events; give the keyboard the same entry point.
+            e.currentTarget.dispatchEvent(
+                new MouseEvent("contextmenu", { bubbles: true, clientX: right, clientY: top + height / 2 }),
+            );
+        } else {
+            props.onKeyDown?.(e);
+        }
+    };
+
     // Generate a11y label from notification state and room name
     const a11yLabel = getA11yLabel(item.name, item.notification);
 
     return (
-        <RoomListItemContextMenu vm={vm}>
-            <Flex
-                as="button"
-                ref={mergedRef}
-                className={classNames(styles.roomListItem, "mx_RoomListItemView", {
-                    [styles.keyboardActive]: keyboardActive,
-                    [styles.selected]: isSelected,
-                    [styles.bold]: item.isBold,
-                    [styles.firstItem]: isFirstItem,
-                    [styles.lastItem]: isLastItem,
-                    [styles.dragSource]: isDragSource,
-                    mx_RoomListItemView_selected: isSelected,
-                })}
-                gap="var(--cpd-space-3x)"
-                align="stretch"
-                type="button"
-                aria-label={a11yLabel}
-                onClick={vm.onOpenRoom}
-                onFocus={onItemFocus}
-                onBlur={onItemBlur}
-                tabIndex={isFocused ? 0 : -1}
-                aria-selected={props.role === "option" ? isSelected : undefined}
-                {...props}
-            >
-                <RoomListItemContent vm={vm} renderAvatar={renderAvatar} />
-            </Flex>
-        </RoomListItemContextMenu>
+        <Tooltip description={item.name} placement="right">
+            <div>
+                <RoomListItemContextMenu vm={vm}>
+                    <Flex
+                        as="button"
+                        ref={mergedRef}
+                        className={classNames(styles.roomListItem, "mx_RoomListItemView", {
+                            [styles.keyboardActive]: keyboardActive,
+                            [styles.selected]: isSelected,
+                            [styles.bold]: item.isBold,
+                            [styles.firstItem]: isFirstItem,
+                            [styles.lastItem]: isLastItem,
+                            [styles.dragSource]: isDragSource,
+                            mx_RoomListItemView_selected: isSelected,
+                        })}
+                        gap="var(--cpd-space-3x)"
+                        align="stretch"
+                        type="button"
+                        aria-label={a11yLabel}
+                        onClick={vm.onOpenRoom}
+                        onFocus={onItemFocus}
+                        onBlur={onItemBlur}
+                        tabIndex={isFocused ? 0 : -1}
+                        aria-selected={props.role === "option" ? isSelected : undefined}
+                        {...props}
+                        onKeyDown={onItemKeyDown}
+                    >
+                        <RoomListItemContent vm={vm} renderAvatar={renderAvatar} />
+                    </Flex>
+                </RoomListItemContextMenu>
+            </div>
+        </Tooltip>
     );
 });

@@ -34,7 +34,7 @@ export interface LeftResizablePanelViewActions {
 type Props = {
     vm: ViewModel<ResizerViewSnapshot, LeftResizablePanelViewActions>;
     className?: string;
-} & Pick<PanelProps, "minSize" | "maxSize" | "defaultSize">;
+} & Pick<PanelProps, "minSize" | "maxSize" | "defaultSize" | "collapsedThreshold">;
 
 /**
  * This is a custom panel component for the left-panel. It is used along with SeparatorView, Group and Panel to render
@@ -53,7 +53,7 @@ export function LeftResizablePanelView({
         if (panelRef) vm.setPanelHandle(panelRef);
     }, [vm, panelRef]);
 
-    const defaultSize = initialSize === undefined ? props.defaultSize : `${initialSize}%`;
+    const defaultSize = typeof initialSize === "number" ? `${initialSize}%` : (initialSize ?? props.defaultSize);
 
     return (
         <Panel
@@ -61,6 +61,7 @@ export function LeftResizablePanelView({
             id={LEFT_PANEL_ID}
             className={className}
             collapsible
+            collapsedThreshold={props.collapsedThreshold}
             minSize={props.minSize}
             maxSize={props.maxSize}
             defaultSize={defaultSize}

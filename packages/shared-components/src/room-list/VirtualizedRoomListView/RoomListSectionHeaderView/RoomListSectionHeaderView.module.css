@@ -35,13 +35,13 @@
         }
 
         .menu {
-            display: initial;
+            display: var(--room-list-section-menu-display, initial);
         }
 
         /* When a menu is present and revealed on hover, hide the decoration to avoid clutter.
            Default sections have no menu, so their decoration stays visible on hover. */
         .notificationDecoration {
-            display: none;
+            display: var(--room-list-notification-display, none);
         }
     }
 
@@ -86,6 +86,10 @@
     svg {
         flex-shrink: 0;
     }
+}
+
+.label {
+    min-width: 0;
 }
 
 .title {
@@ -166,4 +170,43 @@ scrolling rows beneath because the overlay wrapper (.stickyHeader) owns the stac
     inset-inline: 0 var(--cpd-space-3x);
     z-index: -1;
     background: var(--cpd-color-bg-canvas-default);
+}
+
+@container room-list-panel (width < 200px) {
+    .header {
+        --room-list-section-menu-display: none;
+        --room-list-notification-display: block;
+    }
+
+    .header .container .menu {
+        display: none;
+    }
+
+    .header .container .notificationDecoration {
+        display: block;
+        position: absolute;
+        inset-block-start: var(--cpd-space-1x);
+        inset-inline-end: 0;
+        pointer-events: none;
+    }
+
+    .notificationDecoration [data-compact-hidden="true"] {
+        display: none;
+    }
+
+    .notificationDecoration svg {
+        width: var(--cpd-space-4x);
+        height: var(--cpd-space-4x);
+    }
+}
+
+@container room-list-panel (width <= 96px) {
+    .header .container {
+        padding-inline: var(--cpd-space-2x);
+        justify-content: center;
+    }
+
+    .title {
+        display: none;
+    }
 }

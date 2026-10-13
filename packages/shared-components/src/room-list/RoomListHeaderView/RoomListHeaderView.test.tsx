@@ -35,6 +35,17 @@ describe("RoomListHeaderView", () => {
         expect(container).toMatchSnapshot();
     });
 
+    it("should keep a long title on one line when the room list narrows", () => {
+        const { getByRole, getByTestId } = render(
+            <div style={{ width: "150px", containerType: "inline-size", containerName: "room-list-panel" }}>
+                <NoSpaceMenu title="A very long space name that must never wrap" />
+            </div>,
+        );
+        const title = getByRole("heading");
+        expect(getComputedStyle(title).whiteSpace).toBe("nowrap");
+        expect(getByTestId("room-list-header").scrollWidth).toBeLessThanOrEqual(150);
+    });
+
     it("should bind the collapse all sections action", () => {
         const { getByRole } = render(<CollapseSections />);
         const collapseButton = getByRole("button", { name: "Collapse all sections" });

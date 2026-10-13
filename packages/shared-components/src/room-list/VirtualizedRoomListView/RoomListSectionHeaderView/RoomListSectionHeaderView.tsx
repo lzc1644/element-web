@@ -9,6 +9,7 @@ import React, { memo, type JSX, type FocusEvent, useEffect, useRef, useState } f
 import classNames from "classnames";
 import { useDraggable, useDragOperation, useDroppable } from "@dnd-kit/react";
 import { useMergeRefs } from "react-merge-refs";
+import { Tooltip } from "@vector-im/compound-web";
 import { Feedback } from "@dnd-kit/dom";
 import { RestrictToVerticalAxis } from "@dnd-kit/abstract/modifiers";
 
@@ -208,51 +209,53 @@ export const RoomListSectionHeaderView = memo(function RoomListSectionHeaderView
             {...getGroupHeaderAccessibleProps(indexInList, sectionIndex, roomCountInSection)}
         >
             <div role="gridcell" aria-expanded={ariaExpanded}>
-                <button
-                    ref={buttonRef}
-                    type="button"
-                    className={classNames(styles.header, {
-                        [styles.keyboardActive]: keyboardActive,
-                        [styles.firstHeader]: sectionIndex === 0,
-                        // If the section is collapsed and it's the last one
-                        [styles.lastHeader]: !isExpanded && isLastSection,
-                        [styles.unread]: isUnread,
-                        [styles.dragSource]: isDragSource,
-                        [styles.dropTarget]: isDraggingRoom,
-                        [styles.dropTargetBottom]: hasBottomBorder,
-                        [styles.dropTargetTop]: hasTopBorder,
-                    })}
-                    onClick={() => !isDragSource && vm.onClick()}
-                    onKeyDown={(e) => {
-                        if ((e.code === "ArrowRight" && !isExpanded) || (e.code === "ArrowLeft" && isExpanded)) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            vm.onClick();
-                        } else if (e.code === "ArrowRight" && isExpanded && roomCountInSection > 0) {
-                            // Move focus to the first room in the section
-                            e.preventDefault();
-                            e.stopPropagation();
-                            e.currentTarget.dispatchEvent(
-                                new KeyboardEvent("keydown", {
-                                    code: "ArrowDown",
-                                    key: "ArrowDown",
-                                    bubbles: true,
-                                }),
-                            );
+                <Tooltip description={title} placement="right">
+                    <button
+                        ref={buttonRef}
+                        type="button"
+                        className={classNames(styles.header, {
+                            [styles.keyboardActive]: keyboardActive,
+                            [styles.firstHeader]: sectionIndex === 0,
+                            // If the section is collapsed and it's the last one
+                            [styles.lastHeader]: !isExpanded && isLastSection,
+                            [styles.unread]: isUnread,
+                            [styles.dragSource]: isDragSource,
+                            [styles.dropTarget]: isDraggingRoom,
+                            [styles.dropTargetBottom]: hasBottomBorder,
+                            [styles.dropTargetTop]: hasTopBorder,
+                        })}
+                        onClick={() => !isDragSource && vm.onClick()}
+                        onKeyDown={(e) => {
+                            if ((e.code === "ArrowRight" && !isExpanded) || (e.code === "ArrowLeft" && isExpanded)) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                vm.onClick();
+                            } else if (e.code === "ArrowRight" && isExpanded && roomCountInSection > 0) {
+                                // Move focus to the first room in the section
+                                e.preventDefault();
+                                e.stopPropagation();
+                                e.currentTarget.dispatchEvent(
+                                    new KeyboardEvent("keydown", {
+                                        code: "ArrowDown",
+                                        key: "ArrowDown",
+                                        bubbles: true,
+                                    }),
+                                );
+                            }
+                        }}
+                        aria-expanded={ariaExpanded}
+                        onFocus={onHeaderFocus}
+                        onBlur={onHeaderBlur}
+                        tabIndex={isFocused ? 0 : -1}
+                        aria-label={
+                            isUnread
+                                ? _t("room_list|section_header|toggle_unread", { section: title })
+                                : _t("room_list|section_header|toggle", { section: title })
                         }
-                    }}
-                    aria-expanded={ariaExpanded}
-                    onFocus={onHeaderFocus}
-                    onBlur={onHeaderBlur}
-                    tabIndex={isFocused ? 0 : -1}
-                    aria-label={
-                        isUnread
-                            ? _t("room_list|section_header|toggle_unread", { section: title })
-                            : _t("room_list|section_header|toggle", { section: title })
-                    }
-                >
-                    <RoomListSectionHeaderContent vm={vm} />
-                </button>
+                    >
+                        <RoomListSectionHeaderContent vm={vm} />
+                    </button>
+                </Tooltip>
             </div>
         </div>
     );

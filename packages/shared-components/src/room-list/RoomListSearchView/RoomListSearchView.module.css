@@ -44,3 +44,34 @@
     text-overflow: ellipsis;
     text-align: start;
 }
+
+@container room-list-panel (width < 200px) {
+    .view {
+        height: var(--cpd-space-14x);
+        min-height: 0;
+        flex-shrink: 0;
+        justify-content: center;
+    }
+
+    .view > button:not(.search),
+    .search_container kbd {
+        display: none;
+    }
+
+    .search {
+        height: var(--cpd-space-9x);
+        padding-inline: var(--cpd-space-2x);
+        gap: var(--cpd-space-2x);
+    }
+}
+
+@container room-list-panel (width <= 96px) {
+    .search {
+        flex: 0 0 var(--cpd-space-10x);
+        justify-content: center;
+    }
+
+    .search_container {
+        display: none;
+    }
+}

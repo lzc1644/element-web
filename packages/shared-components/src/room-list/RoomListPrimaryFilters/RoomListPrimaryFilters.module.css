@@ -31,3 +31,34 @@
 .iconButton[aria-expanded="true"] svg {
     transform: rotate(180deg);
 }
+
+.compactFilter {
+    display: none;
+    position: relative;
+    margin: var(--cpd-space-2x) auto;
+}
+
+.filterIcon {
+    position: relative;
+    display: flex;
+}
+
+.compactFilter .clearIcon {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    width: var(--cpd-space-3x);
+    height: var(--cpd-space-3x);
+    border-radius: var(--cpd-radius-pill-effect);
+    background: var(--cpd-color-bg-canvas-default);
+}
+
+@container room-list-panel (width < 200px) {
+    .roomListPrimaryFilters {
+        display: none;
+    }
+
+    .compactFilter {
+        display: flex;
+    }
+}

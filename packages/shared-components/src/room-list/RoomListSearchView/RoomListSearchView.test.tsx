@@ -69,8 +69,26 @@ describe("RoomListSearchView", () => {
 
             render(<RoomListSearchView vm={vm} />);
 
-            await user.click(screen.getByRole("button", { name: "Search ⌘ K" }));
+            await user.click(screen.getByRole("button", { name: "Search" }));
             expect(onSearchClick).toHaveBeenCalledTimes(1);
+        });
+
+        it("should retain a usable search button without secondary tools in the narrow rail", async () => {
+            const user = userEvent.setup();
+            const vm = new TestViewModel({
+                displayExploreButton: true,
+                displayDialButton: true,
+                searchShortcut: "Ctrl K",
+            });
+            render(
+                <div style={{ width: "64px", containerType: "inline-size", containerName: "room-list-panel" }}>
+                    <RoomListSearchView vm={vm} />
+                </div>,
+            );
+            expect(document.querySelector('[aria-label="Explore rooms"]')).not.toBeVisible();
+            expect(document.querySelector('[aria-label="Open dial pad"]')).not.toBeVisible();
+            await user.click(screen.getByRole("button", { name: "Search" }));
+            expect(onSearchClick).toHaveBeenCalledOnce();
         });
 
         it("should call onDialPadClick when dial pad button is clicked", async () => {

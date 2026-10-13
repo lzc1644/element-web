@@ -55,7 +55,7 @@ exports[`RoomListHeaderView > renders collapse button 1`] = `
         </button>
       </div>
       <div
-        class="Flex-module_flex"
+        class="Flex-module_flex RoomListHeaderView-module_actions"
         style="--mx-flex-display: flex; --mx-flex-direction: row; --mx-flex-align: center; --mx-flex-justify: start; --mx-flex-gap: var(--cpd-space-2x); --mx-flex-wrap: nowrap;"
       >
         <button
@@ -211,7 +211,7 @@ exports[`RoomListHeaderView > renders expand button 1`] = `
         </button>
       </div>
       <div
-        class="Flex-module_flex"
+        class="Flex-module_flex RoomListHeaderView-module_actions"
         style="--mx-flex-display: flex; --mx-flex-direction: row; --mx-flex-align: center; --mx-flex-justify: start; --mx-flex-gap: var(--cpd-space-2x); --mx-flex-wrap: nowrap;"
       >
         <button
@@ -367,7 +367,7 @@ exports[`RoomListHeaderView > renders the default state 1`] = `
         </button>
       </div>
       <div
-        class="Flex-module_flex"
+        class="Flex-module_flex RoomListHeaderView-module_actions"
         style="--mx-flex-display: flex; --mx-flex-direction: row; --mx-flex-align: center; --mx-flex-justify: start; --mx-flex-gap: var(--cpd-space-2x); --mx-flex-wrap: nowrap;"
       >
         <button
@@ -465,7 +465,7 @@ exports[`RoomListHeaderView > renders without space menu 1`] = `
         </h1>
       </div>
       <div
-        class="Flex-module_flex"
+        class="Flex-module_flex RoomListHeaderView-module_actions"
         style="--mx-flex-display: flex; --mx-flex-direction: row; --mx-flex-align: center; --mx-flex-justify: start; --mx-flex-gap: var(--cpd-space-2x); --mx-flex-wrap: nowrap;"
       >
         <button

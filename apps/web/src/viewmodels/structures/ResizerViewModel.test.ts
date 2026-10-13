@@ -46,6 +46,14 @@ describe("LeftPanelResizerViewModel", () => {
             });
         });
 
+        it("should prefer the saved pixel width to the legacy percentage", async () => {
+            await SettingsStore.setValue("RoomList.panelWidth", null, SettingLevel.DEVICE, 150);
+            await SettingsStore.setValue("RoomList.panelSize", null, SettingLevel.DEVICE, 34);
+            const vm = new ResizerViewModel(CallStore.instance);
+            expect(vm.getSnapshot().initialSize).toBe("150px");
+            vm.dispose();
+        });
+
         it("should have correct initial state when panel was neither resized nor collapsed", () => {
             const vm = new ResizerViewModel(CallStore.instance);
             expect(vm.getSnapshot()).toStrictEqual({
@@ -113,6 +121,7 @@ describe("LeftPanelResizerViewModel", () => {
         vm.onPointerUp();
 
         expect(mockHandle.resize).toHaveBeenCalledWith("34%");
+        expect(SettingsStore.getValue("RoomList.isPanelCollapsed")).toBe(false);
     });
 
     it("should expand panel on a click that follows moving across the separator", () => {
@@ -160,7 +169,7 @@ describe("LeftPanelResizerViewModel", () => {
             // Simulate click
             vm.onPointerDown(pointerAt(100, 100));
             vm.onPointerUp();
-            expect(mockHandle.resize).toHaveBeenCalledWith("100%");
+            expect(mockHandle.resize).toHaveBeenCalledWith("370px");
         });
     });
 
@@ -176,7 +185,30 @@ describe("LeftPanelResizerViewModel", () => {
         expect(mockHandle.collapse).toHaveBeenCalled();
     });
 
-    it("should ignore first resized event", () => {
+    it("should keep the saved width through automatic layout changes", async () => {
+        await SettingsStore.setValue("RoomList.panelWidth", null, SettingLevel.DEVICE, 150);
+        const vm = new ResizerViewModel(CallStore.instance);
+        vm.onLeftPanelResized(0, false);
+        vm.onLeftPanelResized(40, false);
+        expect(SettingsStore.getValue("RoomList.panelWidth")).toBe(150);
+        expect(SettingsStore.getValue("RoomList.isPanelCollapsed")).toBe(false);
+        vm.dispose();
+    });
+
+    it("should save the actual dragged width and keep it when manually collapsed", () => {
+        const vm = new ResizerViewModel(CallStore.instance);
+        vm.setPanelHandle({
+            getSize: () => ({ inPixels: 150, asPercentage: 20 }),
+        } as PanelImperativeHandle);
+        vm.onLeftPanelResized(20, true);
+        expect(SettingsStore.getValue("RoomList.panelWidth")).toBe(150);
+        vm.onLeftPanelResized(0, true);
+        expect(SettingsStore.getValue("RoomList.panelWidth")).toBe(150);
+        expect(SettingsStore.getValue("RoomList.isPanelCollapsed")).toBe(true);
+        vm.dispose();
+    });
+
+    it("should ignore the initial layout event", () => {
         const vm = new ResizerViewModel(CallStore.instance);
         const mockHandle = {
             resize: vi.fn(),
@@ -184,7 +216,7 @@ describe("LeftPanelResizerViewModel", () => {
         } as unknown as PanelImperativeHandle;
         vm.setPanelHandle(mockHandle);
 
-        vm.onLeftPanelResized(50);
+        vm.onLeftPanelResized(50, false);
         expect(mockHandle.resize).not.toHaveBeenCalled();
     });
 });

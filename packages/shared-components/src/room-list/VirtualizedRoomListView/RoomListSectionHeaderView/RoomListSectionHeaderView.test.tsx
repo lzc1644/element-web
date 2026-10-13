@@ -34,6 +34,19 @@ describe("<RoomListSectionHeaderView /> stories", () => {
         expect(container).toMatchSnapshot();
     });
 
+    it("should keep collapsed sections keyboard-accessible without showing their tools in the narrow rail", async () => {
+        const user = userEvent.setup();
+        render(
+            <div style={{ width: "64px", containerType: "inline-size", containerName: "room-list-panel" }}>
+                <Collapsed isFocused={true} />
+            </div>,
+        );
+        expect(screen.getByRole("button", { name: HEADER_NAME })).toBeVisible();
+        expect(document.querySelector('[aria-label="More options"]')).not.toBeVisible();
+        await user.keyboard("{ArrowRight}");
+        expect(Collapsed.args.onClick).toHaveBeenCalledOnce();
+    });
+
     it("should call onClick when the header is clicked", async () => {
         const user = userEvent.setup();
 

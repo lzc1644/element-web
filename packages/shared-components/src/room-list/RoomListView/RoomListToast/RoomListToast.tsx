@@ -6,7 +6,8 @@
  */
 
 import React, { type JSX, type MouseEventHandler } from "react";
-import { Toast } from "@vector-im/compound-web";
+import { Toast, Tooltip } from "@vector-im/compound-web";
+import classNames from "classnames";
 import ArrowDownIcon from "@vector-im/compound-design-tokens/assets/web/icons/arrow-down";
 
 import styles from "./RoomListToast.module.css";
@@ -50,16 +51,19 @@ export function RoomListToast({ type, onClose, onClick }: Readonly<RoomListToast
     // The unread-activity toast is clickable as a whole (it scrolls to the unread room) rather
     // than closeable, so it uses the clickable Toast variant with a leading arrow-down icon.
     if (type === "unread_activity") {
+        const text = _t("room_list|unread_messages");
         return (
-            <Toast className={styles.toast} Icon={ArrowDownIcon} onClick={onClick}>
-                {_t("room_list|unread_messages")}
-            </Toast>
+            <Tooltip description={text} placement="right">
+                <Toast className={styles.toast} Icon={ArrowDownIcon} onClick={onClick} aria-label={text}>
+                    <span className={styles.label}>{text}</span>
+                </Toast>
+            </Tooltip>
         );
     }
 
     const text = type === "section_created" ? _t("room_list|section_created") : _t("room_list|chat_moved");
     return (
-        <Toast className={styles.toast} onClose={onClose} tooltip={_t("action|close")}>
+        <Toast className={classNames(styles.toast, styles.eventToast)} onClose={onClose} tooltip={_t("action|close")}>
             {text}
         </Toast>
     );

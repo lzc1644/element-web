@@ -69,22 +69,71 @@ export const NotificationDecoration: React.FC<NotificationDecorationProps> = ({
         return null;
     }
 
+    // A narrow list shows just the highest-priority status instead of a row of decorations.
+    const compactKind = isUnsentMessage
+        ? "error"
+        : invited
+          ? "invite"
+          : isMention || isNotification
+            ? "count"
+            : isActivityNotification
+              ? "activity"
+              : (callType ?? (muted ? "muted" : undefined));
+
     return (
         <Flex align="center" justify="center" gap="var(--cpd-space-1x)" data-testid="notification-decoration">
             {isUnsentMessage && (
-                <ErrorSolidIcon width="20px" height="20px" fill="var(--cpd-color-icon-critical-primary)" />
+                <ErrorSolidIcon
+                    data-compact-hidden={compactKind !== "error"}
+                    width="20px"
+                    height="20px"
+                    fill="var(--cpd-color-icon-critical-primary)"
+                />
             )}
             {callType === "video" && (
-                <VideoCallSolidIcon width="20px" height="20px" fill="var(--cpd-color-icon-accent-primary)" />
+                <VideoCallSolidIcon
+                    data-compact-hidden={compactKind !== "video"}
+                    width="20px"
+                    height="20px"
+                    fill="var(--cpd-color-icon-accent-primary)"
+                />
             )}
             {callType === "voice" && (
-                <VoiceCallSolidIcon width="20px" height="20px" fill="var(--cpd-color-icon-accent-primary)" />
+                <VoiceCallSolidIcon
+                    data-compact-hidden={compactKind !== "voice"}
+                    width="20px"
+                    height="20px"
+                    fill="var(--cpd-color-icon-accent-primary)"
+                />
             )}
-            {invited && <EmailSolidIcon width="20px" height="20px" fill="var(--cpd-color-icon-accent-primary)" />}
-            {isMention && <MentionIcon width="20px" height="20px" fill="var(--cpd-color-icon-accent-primary)" />}
-            {(isMention || isNotification) && <UnreadCounter count={count || null} />}
-            {isActivityNotification && <Unread />}
-            {muted && <NotificationsOffSolidIcon width="20px" height="20px" fill="var(--cpd-color-icon-tertiary)" />}
+            {invited && (
+                <EmailSolidIcon
+                    data-compact-hidden={compactKind !== "invite"}
+                    width="20px"
+                    height="20px"
+                    fill="var(--cpd-color-icon-accent-primary)"
+                />
+            )}
+            {isMention && (
+                <MentionIcon
+                    data-compact-hidden={true}
+                    width="20px"
+                    height="20px"
+                    fill="var(--cpd-color-icon-accent-primary)"
+                />
+            )}
+            {(isMention || isNotification) && (
+                <UnreadCounter data-compact-hidden={compactKind !== "count"} count={count || null} />
+            )}
+            {isActivityNotification && <Unread data-compact-hidden={compactKind !== "activity"} />}
+            {muted && (
+                <NotificationsOffSolidIcon
+                    data-compact-hidden={compactKind !== "muted"}
+                    width="20px"
+                    height="20px"
+                    fill="var(--cpd-color-icon-tertiary)"
+                />
+            )}
         </Flex>
     );
 };

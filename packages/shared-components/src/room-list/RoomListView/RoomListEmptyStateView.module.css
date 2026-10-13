@@ -31,3 +31,10 @@
 .genericPlaceholder button {
     width: 100%;
 }
+
+@container room-list-panel (width < 200px) {
+    /* Keep an empty narrow rail clear of squeezed text and actions. Search remains available globally. */
+    .genericPlaceholder {
+        display: none;
+    }
+}

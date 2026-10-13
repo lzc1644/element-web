@@ -168,7 +168,7 @@ export function RoomListHeaderView({ vm }: Readonly<RoomListHeaderViewProps>): J
                     </H1>
                     {displaySpaceMenu && <SpaceMenuView vm={vm} />}
                 </Flex>
-                <Flex align="center" gap="var(--cpd-space-2x)">
+                <Flex className={styles.actions} align="center" gap="var(--cpd-space-2x)">
                     <OptionMenuView vm={vm} />
                     {areSectionsEnabled && collapseSections && (
                         <IconButton

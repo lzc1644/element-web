@@ -8,7 +8,7 @@
 import React, { type JSX } from "react";
 import { expect, fn, waitFor } from "storybook/test";
 
-import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { Meta, StoryObj, StoryContext } from "@storybook/react-vite";
 import type { FilterId } from "../RoomListPrimaryFilters";
 import { RoomListView, type RoomListViewSnapshot, type RoomListViewActions } from "./RoomListView";
 import type { Room } from "../VirtualizedRoomListView/RoomListItemWrapper/RoomListItemView";
@@ -74,18 +74,20 @@ const meta = {
     component: RoomListViewWrapper,
     tags: ["autodocs"],
     decorators: [
-        (Story) => (
+        (Story, context: StoryContext) => (
             <div
                 style={{
-                    width: "320px",
+                    width: context.parameters.roomListWidth ?? "320px",
                     height: "600px",
                     border: "1px solid var(--cpd-color-border-interactive-primary)",
                     display: "flex",
                     flexDirection: "column",
                     resize: "horizontal",
                     overflow: "auto",
-                    minWidth: "250px",
-                    maxWidth: "800px",
+                    minWidth: "64px",
+                    maxWidth: "370px",
+                    containerType: "inline-size",
+                    containerName: "room-list-panel",
                 }}
             >
                 <Story />
@@ -136,6 +138,19 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+export const Narrow: Story = {
+    parameters: { roomListWidth: "150px" },
+    args: { isFlatList: false },
+};
+
+export const Avatars: Story = {
+    parameters: { roomListWidth: "64px" },
+    args: {
+        isFlatList: false,
+        roomListState: { activeRoomIndex: 0, spaceId: "!space:server", filterKeys: undefined },
+    },
+};
 
 export const Section: Story = {
     args: {

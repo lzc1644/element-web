@@ -35,16 +35,41 @@ interface IProps {
 }
 
 export default class MainSplit extends React.Component<IProps> {
+    private static readonly MIN_PANEL_WIDTH = 320;
+    private static readonly MAX_PANEL_WIDTH_PERCENTAGE = 50;
+
     public static contextType = SDKContext;
     declare public context: React.ContextType<typeof SDKContext>;
 
     public static defaultProps = {
-        defaultSize: 320,
+        defaultSize: MainSplit.MIN_PANEL_WIDTH,
     };
 
     public constructor(props: IProps, context: React.ContextType<typeof SDKContext>) {
         super(props, context);
     }
+
+    public componentDidMount(): void {
+        this.reportMinimumContentWidth();
+    }
+
+    public componentDidUpdate(): void {
+        this.reportMinimumContentWidth();
+    }
+
+    public componentWillUnmount(): void {
+        this.context.resizeNotifier.setMinimumContentWidth(0);
+    }
+
+    private get hasRightPanel(): boolean {
+        return !this.props.collapsedRhs && !!this.props.panel;
+    }
+
+    private reportMinimumContentWidth = (): void => {
+        // A panel at its minimum width must still occupy no more than its allowed share of the split.
+        const width = this.hasRightPanel ? (MainSplit.MIN_PANEL_WIDTH * 100) / MainSplit.MAX_PANEL_WIDTH_PERCENTAGE : 0;
+        this.context.resizeNotifier.setMinimumContentWidth(width);
+    };
 
     private onResizeStart = (): void => {
         this.context.resizeNotifier.startResizing();
@@ -97,7 +122,7 @@ export default class MainSplit extends React.Component<IProps> {
         const bodyView = React.Children.only(this.props.children);
         const panelView = this.props.panel;
 
-        const hasResizer = !this.props.collapsedRhs && panelView;
+        const hasResizer = this.hasRightPanel;
 
         let children;
         if (hasResizer) {
@@ -105,8 +130,8 @@ export default class MainSplit extends React.Component<IProps> {
                 <Resizable
                     key={this.props.sizeKey}
                     defaultSize={this.loadSidePanelSize()}
-                    minWidth={320}
-                    maxWidth="50%"
+                    minWidth={MainSplit.MIN_PANEL_WIDTH}
+                    maxWidth={`${MainSplit.MAX_PANEL_WIDTH_PERCENTAGE}%`}
                     enable={{
                         top: false,
                         right: false,

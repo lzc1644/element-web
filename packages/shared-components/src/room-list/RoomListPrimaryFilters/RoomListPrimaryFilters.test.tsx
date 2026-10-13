@@ -44,6 +44,20 @@ describe("<RoomListPrimaryFilters /> stories", () => {
     });
 
     describe("behavior", () => {
+        it("should show only an active-filter clear button in the avatar rail", async () => {
+            const user = userEvent.setup();
+            render(
+                <div style={{ width: "64px", containerType: "inline-size", containerName: "room-list-panel" }}>
+                    <PeopleSelected />
+                </div>,
+            );
+
+            const clearButton = screen.getByRole("button", { name: "Clear People filter" });
+            expect(screen.getByTestId("primary-filters")).not.toBeVisible();
+            await user.click(clearButton);
+            expect(PeopleSelected.args.onToggleFilter).toHaveBeenCalledWith("people");
+        });
+
         it("should call onToggleFilter when a filter is clicked", async () => {
             const user = userEvent.setup();
             render(<Default />);

@@ -48,7 +48,7 @@ export const RoomListItemContent = memo(function RoomListItemContent({
             gap="var(--cpd-space-3x)"
             align="center"
         >
-            {renderAvatar(item.room)}
+            <div className={styles.avatar}>{renderAvatar(item.room)}</div>
             <Flex className={styles.content} gap="var(--cpd-space-2x)" align="center" justify="space-between">
                 {/* We truncate the room name when too long. Title here is to show the full name on hover */}
                 <div className={styles.ellipsis}>

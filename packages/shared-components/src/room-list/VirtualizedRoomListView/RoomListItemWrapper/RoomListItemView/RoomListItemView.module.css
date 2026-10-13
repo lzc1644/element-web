@@ -56,18 +56,19 @@
     }
 
     .hoverMenu {
-        display: flex;
+        display: var(--room-list-hover-menu-display, flex);
     }
 
-    /* When the menu is visible, hide the notification decoration to avoid clutter */
+    /* In the narrow rail there are no hover tools, so its badge stays visible on focus and hover. */
     .notificationDecoration {
-        display: none;
+        display: var(--room-list-notification-display, none);
     }
 }
 
 .container {
+    --room-list-item-margin: var(--cpd-space-3x);
     flex: 1;
-    margin: 0 var(--cpd-space-3x);
+    margin: 0 var(--room-list-item-margin);
     padding: 0 var(--cpd-space-2x);
     border-radius: 8px;
     min-width: 0;
@@ -81,6 +82,12 @@
 
 .dragSource .container {
     opacity: 0.6;
+}
+
+.avatar {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
 }
 
 .content {
@@ -148,4 +155,62 @@
 
 .lastItem {
     --padding-bottom: 0px;
+}
+
+@container room-list-panel (width < 200px) {
+    .roomListItem {
+        --room-list-hover-menu-display: none;
+        --room-list-notification-display: block;
+    }
+
+    .roomListItem .container {
+        /* Keep the avatar/text gap fixed; only the text's available width shrinks. */
+        position: relative;
+    }
+
+    .content {
+        overflow: hidden;
+    }
+
+    .selected .container::before {
+        /* The compact container positions badges, but the 34px selection marker still belongs to the whole row. */
+        top: 5px;
+        bottom: 5px;
+        left: calc(-1 * var(--room-list-item-margin));
+    }
+
+    .roomListItem .container .content .hoverMenu {
+        /* Hidden menus must not remain clickable or tabbable. Use the row's context menu instead. */
+        display: none;
+    }
+
+    .roomListItem .container .notificationDecoration {
+        display: block;
+        position: absolute;
+        inset-block-start: var(--cpd-space-1x);
+        inset-inline-start: var(--cpd-space-8x);
+        transform: translateX(-50%);
+        pointer-events: none;
+    }
+
+    .notificationDecoration [data-compact-hidden="true"] {
+        display: none;
+    }
+
+    .notificationDecoration svg {
+        width: var(--cpd-space-4x);
+        height: var(--cpd-space-4x);
+    }
+}
+
+@container room-list-panel (width <= 96px) {
+    .roomListItem .container {
+        /* At 64px, 8px outer margins plus 8px padding leave 16px either side of the 32px avatar. */
+        --room-list-item-margin: clamp(var(--cpd-space-2x), calc(100cqw * 0.125), var(--cpd-space-3x));
+        gap: 0;
+    }
+
+    .content > .ellipsis {
+        visibility: hidden;
+    }
 }

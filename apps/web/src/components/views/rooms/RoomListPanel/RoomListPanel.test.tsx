@@ -57,13 +57,13 @@ describe("<RoomListPanel />", () => {
 
     it("should render the RoomListSearch component when UIComponent.FilterContainer is at true", () => {
         renderComponent();
-        expect(screen.getByRole("button", { name: "Search Ctrl K" })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "Search" })).toBeInTheDocument();
     });
 
     it("should not render the RoomListSearch component when UIComponent.FilterContainer is at false", () => {
         vi.mocked(shouldShowComponent).mockReturnValue(false);
         renderComponent();
-        expect(screen.queryByRole("button", { name: "Search Ctrl K" })).toBeNull();
+        expect(screen.queryByRole("button", { name: "Search" })).toBeNull();
     });
 
     it("should move to the next landmark when the shortcut key is pressed", async () => {

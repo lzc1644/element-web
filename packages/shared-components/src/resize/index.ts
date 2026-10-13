@@ -24,9 +24,9 @@ export interface ResizerViewSnapshot {
      */
     isCollapsed: boolean;
     /**
-     * This is the initial size of the panel if available; should be interpreted as percentage.
+     * Initial panel size. Numbers are legacy percentages; strings include an explicit unit.
      */
-    initialSize?: number;
+    initialSize?: number | string;
 }
 
 /**

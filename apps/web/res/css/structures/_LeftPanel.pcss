@@ -57,9 +57,8 @@ Please see LICENSE files in the repository root for full details.
 
 .mx_LeftPanel {
     background-color: var(--cpd-color-bg-canvas-default);
-    /* The room list is not designed to be collapsed to just icons. */
-    /* 224 + 68(spaces bar) was deemed by design to be a good minimum for the left panel. */
-    --collapsedWidth: 224px;
+    /* Keep 32px avatars and their click targets usable in the narrow room list. */
+    --collapsedWidth: 64px;
 
     /* Create a row-based flexbox for the space panel and the room list */
     display: flex;
