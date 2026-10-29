@@ -11,7 +11,7 @@ Please see LICENSE files in the repository root for full details.
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 import React from "react";
 import { VirtuosoMockContext } from "react-virtuoso";
-import { MatrixEvent, Room } from "matrix-js-sdk/src/matrix";
+import { MatrixEvent, MatrixEventEvent, Room, RoomEvent } from "matrix-js-sdk/src/matrix";
 import { act, fireEvent, screen, render, waitFor } from "test-utils-rtl";
 import { clientAndSDKContextRenderOptions, mkEvent, stubClient } from "test-utils";
 
@@ -64,6 +64,8 @@ describe("FilePanel", () => {
         const room = new Room("!room:server", cli, cli.getSafeUserId());
         vi.mocked(cli.getRoom).mockReturnValue(room);
         const pending = Promise.withResolvers<MatrixEvent[]>();
+        const subscribe = vi.spyOn(cli, "on");
+        const unsubscribe = vi.spyOn(cli, "removeListener");
         vi.mocked(EventIndexPeg.get).mockReturnValue({
             loadFileEvents: vi.fn().mockReturnValue(pending.promise),
             crawlingRooms: vi.fn().mockReturnValue({ crawlingRooms: new Set(), totalRooms: new Set() }),
@@ -76,7 +78,14 @@ describe("FilePanel", () => {
         );
         expect(screen.getByRole("status")).toHaveTextContent("Searching this room…");
         unmount();
-        pending.resolve([]);
+        for (const event of [RoomEvent.Timeline, MatrixEventEvent.Decrypted]) {
+            const subscription = subscribe.mock.calls.find(([name]) => name === event);
+            expect(subscription).toBeDefined();
+            expect(unsubscribe).toHaveBeenCalledWith(...subscription!);
+        }
+        subscribe.mockClear();
+        await act(async () => pending.resolve([]));
+        expect(subscribe).not.toHaveBeenCalled();
     });
 
     it("should report an unavailable index instead of an empty folder", async () => {

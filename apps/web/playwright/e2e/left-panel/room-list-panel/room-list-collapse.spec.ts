@@ -27,8 +27,9 @@ test.describe("Collapsible Room list", () => {
     /**
      * Resize the panel and return the bounding box
      * @param pixels The number of pixels by which to resize the panel
+     * @param steps The number of pointer moves, or 1 for a fast drag
      */
-    async function resize(page: Page, pixels: number): ReturnType<Locator["boundingBox"]> {
+    async function resize(page: Page, pixels: number, steps = 10): ReturnType<Locator["boundingBox"]> {
         const leftPanelLocator = page.getByTestId("left-panel");
         const boundingBox = await leftPanelLocator.boundingBox();
 
@@ -39,7 +40,7 @@ test.describe("Collapsible Room list", () => {
 
         await page.mouse.move(mouseX, mouseY);
         await page.mouse.down();
-        await page.mouse.move(mouseX + pixels, mouseY);
+        await page.mouse.move(mouseX + pixels, mouseY, { steps });
         await page.mouse.up();
 
         return boundingBox;
@@ -63,14 +64,14 @@ test.describe("Collapsible Room list", () => {
     test("should keep rooms usable at the avatar rail width and restore it after reload", async ({ page }) => {
         const leftPanelLocator = page.getByTestId("left-panel");
         const initialBoundingBox = await leftPanelLocator.boundingBox();
-        await resize(page, 64 - initialBoundingBox!.width);
+        await resize(page, 64 - initialBoundingBox!.width, 1);
         await expect.poll(async () => (await leftPanelLocator.boundingBox())!.width).toBeCloseTo(64, 0);
 
         const room = leftPanelLocator.getByRole("option", { name: "Open room room0", exact: true });
         await expect(room).toBeVisible();
         await room.click();
         await expect(page.getByRole("heading", { name: /room0/ })).toBeVisible();
-        await page.screenshot({ path: "/tmp/element-web-upstream-2026-10-13-avatar-rail.png" });
+        await page.screenshot({ path: test.info().outputPath("avatar-rail.png") });
 
         await page.reload();
         await expect.poll(async () => (await leftPanelLocator.boundingBox())?.width).toBeCloseTo(64, 0);
