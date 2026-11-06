@@ -688,6 +688,7 @@ export class RoomView extends React.Component<IRoomProps, IRoomState> {
             // becomes available to fetch a whole thread
             if (!initialEvent && this.context.client && roomId) {
                 initialEvent = (await fetchInitialEvent(this.context.client, roomId, initialEventId)) ?? undefined;
+                if (this.unmounted) return;
             }
 
             // If we have an initial event, we want to reset the event pixel offset to ensure it ends up visible
@@ -2601,6 +2602,7 @@ export class RoomView extends React.Component<IRoomProps, IRoomState> {
                         showUrlPreview={this.state.showUrlPreview}
                         showReactions={true}
                         editState={this.state.editState}
+                        showReadReceipts={this.state.showReadReceipts}
                     />
                 </EventPresentationContextProvider>
             );

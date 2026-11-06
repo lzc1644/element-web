@@ -20,6 +20,7 @@ coverage
 /config.json
 /config.json.*
 /src/modules.js
+
 /webapp/
 # version file and tarball created by `npm pack` / `yarn pack`
 /git-revision.txt
@@ -56,6 +57,7 @@ CLAUDE.md
 /docs/.vitepress/cache
 .omx/
 /build_config.yaml
+
 
 # Vitest browser-mode screenshots. Only the linux baselines are committed, as linux
 # is what CI renders with; regenerate them with `pnpm test:unit:screenshots`, which

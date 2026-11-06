@@ -12,7 +12,12 @@ import type {
     ILoadArgs,
     ISearchArgs,
 } from "../BaseEventIndexManager";
-import type { IEventWithRoomId, IMatrixProfile, IResultRoomEvents, ISearchResult } from "matrix-js-sdk/src/@types/search";
+import type {
+    IEventWithRoomId,
+    IMatrixProfile,
+    IResultRoomEvents,
+    ISearchResult,
+} from "matrix-js-sdk/src/@types/search";
 
 interface WorkerRequest {
     id: number;
@@ -108,11 +113,9 @@ async function openDb(name: string): Promise<IDBDatabase> {
                 const store = database.createObjectStore("events", { keyPath: "event_id" });
                 store.createIndex("room_id", "room_id", { unique: false });
                 store.createIndex("room_ts", ["room_id", "origin_server_ts", "event_id"], { unique: false });
-                store.createIndex(
-                    "room_msgtype_ts",
-                    ["room_id", "msgtype", "origin_server_ts", "event_id"],
-                    { unique: false },
-                );
+                store.createIndex("room_msgtype_ts", ["room_id", "msgtype", "origin_server_ts", "event_id"], {
+                    unique: false,
+                });
             }
 
             if (!database.objectStoreNames.contains("checkpoints")) {
@@ -192,7 +195,7 @@ async function addEventToIndex(ev: IEventWithRoomId, profile: IMatrixProfile): P
     const store = tx.objectStore("events");
 
     const content = (ev as any).content ?? {};
-    const msgtype = ev.type === "m.room.message" ? content.msgtype ?? null : null;
+    const msgtype = ev.type === "m.room.message" ? (content.msgtype ?? null) : null;
     const body = extractBody(ev) ?? "";
 
     await addRecord(store, {
@@ -251,9 +254,9 @@ function parseNextBatch(nextBatch?: string): { key?: IDBValidKey; count?: number
         if (parsed && typeof parsed === "object") {
             // 兼容 { key, count, exhausted } 以及“仅 metadata 不带 key”的情况（例如本地索引为空时）。
             return {
-                key: (parsed as any).key as IDBValidKey | undefined,
-                count: (parsed as any).count as number | undefined,
-                exhausted: Boolean((parsed as any).exhausted),
+                key: parsed.key as IDBValidKey | undefined,
+                count: parsed.count as number | undefined,
+                exhausted: Boolean(parsed.exhausted),
             };
         }
         return { key: parsed as IDBValidKey };
@@ -310,7 +313,11 @@ async function buildContext(
     profile: IMatrixProfile,
     beforeLimit: number,
     afterLimit: number,
-): Promise<{ events_before: IEventWithRoomId[]; events_after: IEventWithRoomId[]; profile_info: Record<string, IMatrixProfile> }> {
+): Promise<{
+    events_before: IEventWithRoomId[];
+    events_after: IEventWithRoomId[];
+    profile_info: Record<string, IMatrixProfile>;
+}> {
     const roomId = event.room_id;
     const ts = event.origin_server_ts ?? 0;
     const eventId = event.event_id;
@@ -373,12 +380,12 @@ async function scanRoomForMatches(
                 return;
             }
             scanned += 1;
-            lastKey = cursor.key as IDBValidKey;
+            lastKey = cursor.key;
             const record = cursor.value as EventRecord;
             // 仅把“文本消息”纳入搜索结果，避免房间名/主题/文件名等噪音干扰（对齐 FluffyChat 体验）。
             if (record.type !== "m.room.message" || !TEXT_MESSAGE_TYPES.has(record.msgtype ?? "")) {
                 if (scanned >= MAX_SCAN_RECORDS) {
-                    nextKey = cursor.key as IDBValidKey;
+                    nextKey = cursor.key;
                     resolved = true;
                     resolve();
                     return;
@@ -390,14 +397,14 @@ async function scanRoomForMatches(
             if (bodyLower.includes(termLower)) {
                 records.push(record);
                 if (records.length >= limit) {
-                    nextKey = cursor.key as IDBValidKey;
+                    nextKey = cursor.key;
                     resolved = true;
                     resolve();
                     return;
                 }
             }
             if (scanned >= MAX_SCAN_RECORDS) {
-                nextKey = cursor.key as IDBValidKey;
+                nextKey = cursor.key;
                 resolved = true;
                 resolve();
                 return;
@@ -470,7 +477,7 @@ async function addHistoricEvents(
         if (!item.event.event_id) continue;
         if (isEventTooOld(item.event, cutoffTs)) continue;
         const content = (item.event as any).content ?? {};
-        const msgtype = item.event.type === "m.room.message" ? content.msgtype ?? null : null;
+        const msgtype = item.event.type === "m.room.message" ? (content.msgtype ?? null) : null;
         const body = extractBody(item.event) ?? "";
         insertPromises.push(
             addRecord(eventsStore, {
@@ -692,14 +699,14 @@ ctx.onmessage = async (event: MessageEvent<WorkerRequest>): Promise<void> => {
     const { id, name, args } = event.data;
     const handler = handlers[name];
     if (!handler) {
-        ctx.postMessage({ id, error: `Unknown handler: ${name}` } as WorkerResponse);
+        ctx.postMessage({ id, error: `Unknown handler: ${name}` } satisfies WorkerResponse);
         return;
     }
     try {
         const reply = await handler(...args);
-        ctx.postMessage({ id, reply } as WorkerResponse);
+        ctx.postMessage({ id, reply } satisfies WorkerResponse);
     } catch (e) {
         const error = e instanceof Error ? e.message : String(e);
-        ctx.postMessage({ id, error } as WorkerResponse);
+        ctx.postMessage({ id, error } satisfies WorkerResponse);
     }
 };

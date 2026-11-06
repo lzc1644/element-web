@@ -14,11 +14,12 @@ import { RoomMediaSearchViewModel } from "./RoomMediaSearchViewModel";
 
 describe("RoomMediaSearchViewModel", () => {
     it("should group photos by month in single-column rows at any width", () => {
+        // Media groups follow the user's time zone, so use dates safely inside each local month.
         const events = [0, 1, 2, 3, 4].map(
             (i) =>
                 new MatrixEvent({
                     event_id: `$photo${i}`,
-                    origin_server_ts: Date.UTC(2026, i === 4 ? 7 : 8, 1),
+                    origin_server_ts: new Date(2026, i === 4 ? 7 : 8, 15, 12).getTime(),
                     type: "m.room.message",
                     content: { msgtype: "m.image", body: `Photo ${i}` },
                 }),

@@ -67,13 +67,16 @@ describe("<LeftResizablePanelView />", () => {
     it("should call onLeftPanelResize", async () => {
         const vm = renderPanel();
         const separator = screen.getByRole("separator");
+        const { x, y, width, height } = separator.getBoundingClientRect();
+        const start = { x: x + width / 2, y: y + height / 2 };
         const user = userEvent.setup();
+        // Start on the separator instead of relying on where the browser pointer was left.
         await user.pointer([
-            { target: separator, keys: "[MouseLeft>]" },
-            { coords: { x: 400, y: 200 } },
+            { target: separator, keys: "[MouseLeft>]", coords: start },
+            { coords: { ...start, x: start.x + 50 } },
             { keys: "[/MouseLeft]" },
         ]);
-        expect(vm.onLeftPanelResize).toHaveBeenCalled();
+        await waitFor(() => expect(vm.onLeftPanelResize).toHaveBeenCalled());
     });
 
     it("should restore a pixel width, resize continuously and reverse a collapse", async () => {

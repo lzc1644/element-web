@@ -18,9 +18,9 @@ import { useI18n } from "../../core/i18n/i18nContext";
 
 export interface SeparatorViewActions {
     /**
-     * onPointerUp handler for separator.
+     * onPointerUp handler for separator. Includes the final position to distinguish fast drags from clicks.
      */
-    onPointerUp: () => void;
+    onPointerUp: (event: React.PointerEvent) => void;
 
     /**
      * onPointerMove handler for separator. Takes the event so that how far the pointer has travelled

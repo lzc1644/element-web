@@ -12,7 +12,7 @@ import React, { type ReactNode } from "react";
 import { STABLE_MSC4133_EXTENDED_PROFILES, UNSTABLE_MSC4133_EXTENDED_PROFILES } from "matrix-js-sdk/src/matrix";
 import { type JsonDocument, type JsonValue } from "shared-types";
 // Import these directly from shared-components to avoid circular deps
-import { _t, _td } from "@element-hq/web-shared-components";
+import { _t, _td, type FilterId } from "@element-hq/web-shared-components";
 
 import { type MediaPreviewConfig } from "../@types/media_preview.ts";
 import { type PdfViewerState } from "../@types/pdf-viewer.ts";
@@ -29,7 +29,8 @@ import { SettingLevel } from "./SettingLevel";
 import type SettingController from "./controllers/SettingController";
 import { IS_MAC } from "../Keyboard";
 import UIFeatureController from "./controllers/UIFeatureController";
-import { UIFeature } from "./UIFeature";
+import UIComponentController from "./controllers/UIComponentController";
+import { UIComponent, UIFeature } from "./UIFeature";
 import { Layout } from "./enums/Layout";
 import { TokenizerMode } from "./enums/TokenizerMode";
 import ReducedMotionController from "./controllers/ReducedMotionController";
@@ -225,8 +226,8 @@ export interface Settings {
     "feature_sliding_sync": IBaseSetting<boolean>;
     "feature_simplified_sliding_sync": IFeature;
     "feature_element_call_video_rooms": IFeature;
-    "feature_disable_call_per_sender_encryption": IFeature;
     "feature_element_call_react": IFeature;
+    "feature_matrixrtc_slots": IFeature;
     "feature_location_share_live": IFeature;
     "feature_dynamic_room_predecessors": IFeature;
     "feature_render_reaction_images": IFeature;
@@ -379,6 +380,7 @@ export interface Settings {
     "RoomList.CustomSectionData": IBaseSetting<CustomSectionsData>;
     "RoomList.OrderedCustomSections": IBaseSetting<ReorderableSection[]>;
     "RoomList.SectionExpansionState": IBaseSetting<SectionExpansionState>;
+    "RoomList.activeFilter": IBaseSetting<FilterId | null>;
     "RoomList.showSections": IBaseSetting<boolean>;
     "RoomList.showPeopleSection": IBaseSetting<boolean>;
     "composerUrlPreviewCollapsed": IBaseSetting<boolean>;
@@ -602,14 +604,6 @@ export const SETTINGS: Settings = {
         controller: new ReloadOnChangeController(),
         default: false,
     },
-    "feature_disable_call_per_sender_encryption": {
-        isFeature: true,
-        labsGroup: LabGroup.VoiceAndVideo,
-        supportedLevels: LEVELS_DEVICE_ONLY_SETTINGS_WITH_CONFIG_PRIORITISED,
-        supportedLevelsAreOrdered: true,
-        displayName: _td("labs|feature_disable_call_per_sender_encryption"),
-        default: false,
-    },
     "feature_element_call_react": {
         isFeature: true,
         labsGroup: LabGroup.VoiceAndVideo,
@@ -618,6 +612,15 @@ export const SETTINGS: Settings = {
         displayName: _td("labs|feature_element_call_react"),
         // A call that is already mounted with one embedding (widget/component) cannot be switched to the other.
         controller: new ReloadOnChangeController(),
+        default: false,
+    },
+    "feature_matrixrtc_slots": {
+        isFeature: true,
+        labsGroup: LabGroup.VoiceAndVideo,
+        supportedLevels: LEVELS_DEVICE_ONLY_SETTINGS_WITH_CONFIG_PRIORITISED,
+        supportedLevelsAreOrdered: true,
+        displayName: _td("labs|feature_matrixrtc_slots"),
+        description: _td("labs|feature_matrixrtc_slots_description"),
         default: false,
     },
     "feature_location_share_live": {
@@ -864,7 +867,7 @@ export const SETTINGS: Settings = {
         default: false,
     },
     "userTimezone": {
-        supportedLevels: LEVELS_DEVICE_ONLY_SETTINGS,
+        supportedLevels: LEVELS_DEVICE_ONLY_SETTINGS_WITH_CONFIG,
         displayName: _td("settings|preferences|user_timezone"),
         default: "",
         // Location leak
@@ -1160,7 +1163,9 @@ export const SETTINGS: Settings = {
         displayName: _td("settings|inline_url_previews_default"),
         default: true,
         controller: new RequiresSettingsController([UIFeature.URLPreviews], false, (c) => {
-            if (c["io.element.msc4452.preview_url"]?.enabled !== false) {
+            // Prefer the stable capability, falling back to the unstable MSC4452 prefix for older servers.
+            const previewUrlCapability = c["m.preview_url"] ?? c["io.element.msc4452.preview_url"];
+            if (previewUrlCapability?.enabled !== false) {
                 // If the capability is not listed, or explicitly true then do not disable.
                 return false;
             }
@@ -1444,6 +1449,14 @@ export const SETTINGS: Settings = {
         supportedLevels: LEVELS_DEVICE_ONLY_SETTINGS,
         default: {},
     },
+    /**
+     * Managed by the {@link RoomListViewModel}
+     * Store the primary filter selected in the room list so it survives a reload or relaunch
+     */
+    "RoomList.activeFilter": {
+        supportedLevels: LEVELS_DEVICE_ONLY_SETTINGS,
+        default: null,
+    },
     [UIFeature.RoomHistorySettings]: {
         supportedLevels: LEVELS_UI_FEATURE,
         default: true,
@@ -1513,10 +1526,12 @@ export const SETTINGS: Settings = {
     [UIFeature.AllowCreatingPublicSpaces]: {
         supportedLevels: LEVELS_UI_FEATURE,
         default: true,
+        controller: new UIComponentController(UIComponent.PublicRooms),
     },
     [UIFeature.AllowCreatingPublicRooms]: {
         supportedLevels: LEVELS_UI_FEATURE,
         default: true,
+        controller: new UIComponentController(UIComponent.PublicRooms),
     },
 
     // Electron-specific settings, they are stored by Electron and set/read over an IPC.
